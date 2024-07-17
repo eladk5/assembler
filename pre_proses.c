@@ -1,26 +1,8 @@
 #include "all.h"
-#include "pre_proses.h"
 #include "help_funcs.c"
 #include "erors.c"
 
-/* 
-Frees the memory allocated for the macros in the head_node.
-Parameters:
-head_node: The head of the macro linked list.
-*/
-static void free_them(head head_node)
-{
-    macro_node temp, next_temp;
-    if (head_node.head_mac )
-    {
-        temp = head_node.head_mac;
-        while(temp){
-            next_temp = (temp -> next);
-            free(temp);
-            temp = next_temp;   
-        }
-    }
-}
+
 /* 
 Checks if a given string is the name of a defined macro by going through the list of macros
 Parameters:
@@ -79,11 +61,11 @@ line: The line where the macro is defined.
 static void read_macr(FILE *as_file,char *name, head *head_node,int *flag,int line_num,char *line)
 {
     macro_node temp;/*the node of the new macro*/
-    macro_node new_node = (macro_node)malloc(sizeof(struct MacroNode));
+    macro_node new_node = (macro_node)malloc(sizeof(macro_node));
     if (new_node == NULL) {/*memory alucation fail */
         fprintf(stderr,"Failed to allocate memory/n");
         fclose(as_file);
-        free_them(*head_node);
+        free_the_mac(*head_node);
         exit(1);
     }
     strcpy(new_node->name, name);
@@ -121,16 +103,17 @@ It initializes necessary variables and states, then iterates through each line o
 Depending on the current state, it identifies macro definitions (macr) and expansions, handling each case appropriately. 
 When a macro definition is detected, it reads and stores the macro. When a macro call is found, it expands the macro by writing its content to the output file. 
 The function manages errors such as undefined macros, extra characters, and unclosed macros, and updates the state accordingly. 
-Finally, it closes the output file and frees allocated memory for macros.
+Finally, if no errors were found during the preassembler send to the first pass of the assemly. 
+else free the aloctar memory for the macro list.
 Parameters:
 as_file: The input assembly file.
 file_name: The name of the input file.
 Returns: T if no errors were found during the preassembler, otherwise F.
 */
-int pre_pros(FILE *as_file, char *file_name)
+void pre_pros(FILE *as_file, char *file_name)
 {
+    head head_node_macro,*head_node= &head_node_macro;/* Head of the macro linked list */
     int state = NOT_MACRO;/* Current state of the state machine */
-    head head_node;/* Head of the macro linked list */
     macro_node temp_node;/* Temporary macro node */
     char first_word[MAX_LINE_LENGTH],second_word[MAX_LINE_LENGTH]; /* First and second word in the current line */
     char *rest; /*For the remaining part of the line after the first two words */
@@ -141,12 +124,12 @@ int pre_pros(FILE *as_file, char *file_name)
     int temp,temp_buffer; /* Temporary variables*/
     char new_file_name[MAX_FILE_NAME];/* To store the name of the current file whith .am ending */
 
-    head_node.head_mac = NULL;
+    (head_node->head_mac) = NULL;
     strcpy(new_file_name,file_name);
     new_file_name[strlen(new_file_name)-1]='m'; /* Change the extension to .am */
     if ((am_file=fopen(new_file_name,"w")) == NULL){
  		fprintf(stderr, "Error opening file: %s\n",new_file_name);/* the file dont open */
-        return F;
+        return;
 		} 
     while (fgets(line, MAX_LINE_LENGTH ,as_file) ) {/*reading new line*/
         first_word[0] = '\0';
@@ -162,7 +145,7 @@ int pre_pros(FILE *as_file, char *file_name)
                         if ( chek_end_line(rest) ){
                           state=MACRO_READ;
                           /*A call to a function that will add this macro to the list of macros*/
-                          read_macr(as_file,second_word,&head_node,&flag,line_number,line);
+                          read_macr(as_file,second_word,head_node,&flag,line_number,line);
                         }
                         else/* extra chars case*/
                             eror(file_name,line_number,&flag,line, EXTEA_CHARS );  
@@ -175,7 +158,7 @@ int pre_pros(FILE *as_file, char *file_name)
                             eror(file_name,line_number,&flag,line, MAK_NAME_LONG );
                     }
                 }
-                if((temp_node = is_makro_name(first_word, head_node))){/*if the line calls out to macro*/
+                if((temp_node = is_makro_name(first_word, *head_node))){/*if the line calls out to macro*/
                     if (temp > 1)/* extra chars case*/
                         eror(file_name,line_number,&flag,line, EXTEA_CHARS );
                     else{
@@ -213,8 +196,11 @@ int pre_pros(FILE *as_file, char *file_name)
     if(state == MACRO_READ)/*If we finished the file when there is a macro that never closed*/
         eror(file_name,line_number,&flag,line, MACRO_NOT_CLOSE);
     fclose(am_file);
-    free_them(head_node);
-    return flag;
+    /*if(flag)
+		first_pass(new_file_name);
+        else*/
+                free_the_mac(*head_node);
+        
 }
 
 

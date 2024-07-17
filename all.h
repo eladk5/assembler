@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_SIZE_ENDINDG 12
+#define MAX_SIZE_MEMOREY 3996  
 #define MAX_LINE_LENGTH 81
 #define MAX_LABEL_LENGTH 31
 #define  MAX_FILE_NAME 255
@@ -31,8 +33,40 @@ struct {
         {"jsr", 13},
         {"rts", 14},
         {"stop", 15},
-        {"null",16}
+        {".entry",16},
+        {".extern", 17},
+        {".data", 18},
+        {".string",19}  
    };
+
+enum{
+    ENTRY = 16,
+    EXTERN,
+    DATA,
+    STRING
+};
+
+/* Structure to represent a macro node in the linked list */
+struct MacroNode {
+    char name[MAX_LABEL_LENGTH]; /* Name of the macro */
+    int offset; /* offset of the macro definition in the file (from the beginning of the file) */
+    int line_number; /* Line number where the macro is defined */
+    struct MacroNode *next;
+};
+
+/* Structure to represent the head of the macro linked list */
+typedef struct MacroNode *macro_node;
+
+struct head_mcr{
+    macro_node head_mac;
+};
+typedef struct head_mcr head;
+
+enum{
+    NOT_MACRO,
+    MACRO_READ,
+    MACRO_CALL
+};
 
 /* Enumeration for different error types */
 enum{
@@ -42,7 +76,9 @@ enum{
         EXTEA_CHARS,
         MAK_NAME_LONG,
         NO_MAC_NAME,
-        MACRO_NOT_CLOSE
+        MACRO_NOT_CLOSE,
+        OVER_SIZE,
+        ONLY_LABEL
 };
 
 /* 
@@ -70,3 +106,53 @@ str: The string to check.
 Returns: T if the string contains only white characters, otherwise F.
 */
 int chek_end_line(char * str);
+
+union Instruction {
+    struct {
+        int e: 1;
+        int r: 1;
+        int a: 1;
+        int second_operand_method: 4;
+        int first_operand_method: 4;
+        int opcode: 4;
+    } first_command;
+
+    struct {
+        int e: 1;
+        int r: 1;
+        int a: 1;
+        int value: 12;
+    } number;
+
+    struct {
+        int e: 1;
+        int r: 1;
+        int a: 1;
+        int adress: 12;
+    } label;
+    struct {
+        int e: 1;
+        int r: 1;
+        int a: 1;
+        int second_operand: 3;
+        int first_operand: 3;
+        unsigned int reserved: 6;
+    } regist;
+};
+typedef union Instruction instruction;
+
+struct Command
+{
+        int num_of_commands;
+        int which_num_of_command;
+        int type_of_command;/*first command, namber,label or register */
+        instruction com;
+};
+typedef struct Command command;
+
+/* 
+Frees the memory allocated for the macros in the head_node.
+Parameters:
+head_node: The head of the macro linked list.
+*/
+static void free_the_mac(head head_node);

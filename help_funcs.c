@@ -30,14 +30,32 @@ int chek_end_line(char * str)
     return T;
 }
 
-/*get string and checks if it is name of command, if so return the opcode of the command, 
-otherwise return 16 (NOT_COMMAND) */
+/*get string and checks if it is name of command, if so return the opcode of the command (or for promote the enum value), 
+otherwise return -1 (NOT_COMMAND) */
 int search_command (char *str)
 {
 	int i;
-	for(i=0;i < NUM_OF_COMMANDS; i++){
+	for(i=0;i <= STRING; i++){
 		if(strcmp( str , cmd[i].name ) == 0 )
 			return i;
 	}
-	return i;
+	return NOT_COMMAND;
+}
+/* 
+Frees the memory allocated for the macros in the head_node.
+Parameters:
+head_node: The head of the macro linked list.
+*/
+static void free_the_mac(head head_node)
+{
+    macro_node temp, next_temp;
+    if (head_node.head_mac )
+    {
+        temp = head_node.head_mac;
+        while(temp){
+            next_temp = (temp -> next);
+            free(temp);
+            temp = next_temp;   
+        }
+    }
 }
