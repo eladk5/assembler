@@ -15,7 +15,7 @@ static macro_node is_makro_name(char *str,head head_node)
     macro_node temp;
     if ( search_command(str) != NOT_COMMAND )
         return NULL;
-    temp = head_node.head_mac;
+    temp = (head_node.head_of_list);
     while(temp){
         if( strcmp( (temp->name) , str ) == 0 ) 
             return temp;
@@ -61,7 +61,7 @@ line: The line where the macro is defined.
 static void read_macr(FILE *as_file,char *name, head *head_node,int *flag,int line_num,char *line)
 {
     macro_node temp;/*the node of the new macro*/
-    macro_node new_node = (macro_node)malloc(sizeof(macro_node));
+    macro_node new_node = (macro_node)malloc(sizeof(struct MacroNode));
     if (new_node == NULL) {/*memory alucation fail */
         fprintf(stderr,"Failed to allocate memory/n");
         fclose(as_file);
@@ -75,18 +75,20 @@ static void read_macr(FILE *as_file,char *name, head *head_node,int *flag,int li
     if ( search_command(name) != NOT_COMMAND )/*Cheks if it is a command name*/
     {
          eror(name, line_num, flag,line, MAC_NAME_COMMAND);
+         free(new_node);
          return;
     }
-    if ((head_node->head_mac) == NULL )/*if its the first macro*/
+    if ((head_node->head_of_list) == NULL )/*if its the first macro*/
     {
-        (head_node->head_mac) = new_node;
+        (head_node->head_of_list) = new_node;
         return;
     }
-    temp = (head_node->head_mac);
+    temp = (head_node->head_of_list);
     while(temp){/*Going through the list of macros, if the new macro name is already found, an error is reported.
      If not, adds the new node to the end of the list*/
         if( strcmp( (temp->name) , name ) == 0 ){  
             eror(name,line_num,flag,line,MAC_NAME_AGAIN);
+            free(new_node);
             return;
         }
         if (temp->next == NULL){
@@ -124,7 +126,7 @@ void pre_pros(FILE *as_file, char *file_name)
     int temp,temp_buffer; /* Temporary variables*/
     char new_file_name[MAX_FILE_NAME];/* To store the name of the current file whith .am ending */
 
-    (head_node->head_mac) = NULL;
+    (head_node->head_of_list) = NULL;
     strcpy(new_file_name,file_name);
     new_file_name[strlen(new_file_name)-1]='m'; /* Change the extension to .am */
     if ((am_file=fopen(new_file_name,"w")) == NULL){
@@ -195,11 +197,13 @@ void pre_pros(FILE *as_file, char *file_name)
     }
     if(state == MACRO_READ)/*If we finished the file when there is a macro that never closed*/
         eror(file_name,line_number,&flag,line, MACRO_NOT_CLOSE);
-    fclose(am_file);
-    /*if(flag)
-		first_pass(new_file_name);
+    /*if(flag){
+        fseek(am_file,0,SEEK_SET);
+		first_pass(new_file_name,head_node,am_file);
+        }
         else*/
                 free_the_mac(*head_node);
+        fclose(am_file);
         
 }
 

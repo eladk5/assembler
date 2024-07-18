@@ -2,25 +2,21 @@
 
 /* 
 Processes the input assembly file and expands the macros. Writes the expanded code to a new file with a .am extension.
- Handles errors and sets flags accordingly.
+ Handles errors and sets flags accordingly.if no errors were found during the preassembler send to the first pass of the assemly.
 Parameters:
 as_file: The input assembly file.
 file_name: The name of the input file.
-Returns: T if no errors were found during the preassembler, otherwise F.
 */
-int pre_pros(FILE *, char *);
+void pre_pros(FILE *, char *);
 
-first_pass(char *file_name,command *(coms[]), sort *(data[]),int *eror_flag);
+void first_pass(char *am_name,head *head_node_mac,FILE *am_file);
 
 int main(int argc,char *argv[])
 {
-	head head_node_macro;/* Head of the macro linked list */
+	
     char *file_name;
     char *new_file_name;/* To store the name of the current file being processed */
 	FILE *ifp;/* File pointer for reading the input files */
-	command coms[MAX_SIZE_MEMOREY];/*whill contain all the regular commands words*/
-	short data[MAX_SIZE_MEMOREY];/*whill contain all the data or string words*/
-	int eror_flag;
 
 	/* Check if there are any input files */
 	if( argc == 1){
@@ -39,11 +35,10 @@ int main(int argc,char *argv[])
 		if ((ifp=fopen(new_file_name,"r")) == NULL){
  			fprintf(stderr, "Error opening file: %s\n",new_file_name);/* the file dont open */
 		} else {
-            eror_flag = pre_pros(ifp, new_file_name,&head_node_macro);
+            pre_pros(ifp, new_file_name);
             fclose(ifp);
         }
-		if(eror_flag)
-			first_pass(new_file_name,&coms,&data,&eror_flag);
+		
 		   
 	}
     return 0;

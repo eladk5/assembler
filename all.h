@@ -8,7 +8,7 @@
 #define MAX_LABEL_LENGTH 31
 #define  MAX_FILE_NAME 255
 #define  NUM_OF_COMMANDS 16 
-#define NOT_COMMAND 16
+#define NOT_COMMAND -1
 #define  F 0
 #define  T 1
 
@@ -57,10 +57,10 @@ struct MacroNode {
 /* Structure to represent the head of the macro linked list */
 typedef struct MacroNode *macro_node;
 
-struct head_mcr{
-    macro_node head_mac;
+struct Generic_head{
+    void *head_of_list;
 };
-typedef struct head_mcr head;
+typedef struct Generic_head head;
 
 enum{
     NOT_MACRO,
@@ -78,7 +78,8 @@ enum{
         NO_MAC_NAME,
         MACRO_NOT_CLOSE,
         OVER_SIZE,
-        ONLY_LABEL
+        ONLY_LABEL,
+        NOT_VALID_COMMAND
 };
 
 /* 
@@ -109,35 +110,35 @@ int chek_end_line(char * str);
 
 union Instruction {
     struct {
-        int e: 1;
-        int r: 1;
-        int a: 1;
-        int second_operand_method: 4;
-        int first_operand_method: 4;
-        int opcode: 4;
+        unsigned int e: 1;
+        unsigned int r: 1;
+        unsigned int a: 1;
+        unsigned int second_operand_method: 4;
+        unsigned int first_operand_method: 4;
+        unsigned int opcode: 4;
     } first_command;
 
     struct {
-        int e: 1;
-        int r: 1;
-        int a: 1;
-        int value: 12;
-    } number;
+        unsigned int e: 1;
+        unsigned int r: 1;
+        unsigned int a: 1;
+        int value: 12;/*not unsigned beacuse the value can be negative*/
+    } number_word;
 
     struct {
-        int e: 1;
-        int r: 1;
-        int a: 1;
-        int adress: 12;
-    } label;
+        unsigned int e: 1;
+        unsigned int r: 1;
+        unsigned int a: 1;
+        unsigned int adress: 12;
+    } label_word;
     struct {
-        int e: 1;
-        int r: 1;
-        int a: 1;
-        int second_operand: 3;
-        int first_operand: 3;
-        unsigned int reserved: 6;
-    } regist;
+        unsigned int e: 1;
+        unsigned int r: 1;
+        unsigned int a: 1;
+        unsigned int second_operand: 3;
+        unsigned int first_operand: 3;
+        unsigned int reserved: 6;/*not in use*/
+    } register_word;
 };
 typedef union Instruction instruction;
 

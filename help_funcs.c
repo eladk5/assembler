@@ -49,9 +49,9 @@ head_node: The head of the macro linked list.
 static void free_the_mac(head head_node)
 {
     macro_node temp, next_temp;
-    if (head_node.head_mac )
+    if (head_node.head_of_list )
     {
-        temp = head_node.head_mac;
+        temp = head_node.head_of_list;
         while(temp){
             next_temp = (temp -> next);
             free(temp);
