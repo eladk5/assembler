@@ -59,3 +59,21 @@ static void free_the_mac(head head_node)
         }
     }
 }
+/* 
+Checks if a given string is the name of a defined macro by going through the list of macros
+Parameters:
+str: The string to check.
+head_node: The head of the macro linked list.
+Returns: The macro node if the string is a macro name, otherwise NULL.
+*/
+macro_node is_macro_name(char *str,head head_node)
+{
+    macro_node temp;
+    temp = (head_node.head_of_list);
+    while(temp){
+        if( strcmp( (temp->name) , str ) == 0 ) 
+            return temp;
+        temp = temp -> next;
+    }
+    return NULL;
+}

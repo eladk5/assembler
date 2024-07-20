@@ -3,26 +3,7 @@
 #include "erors.c"
 
 
-/* 
-Checks if a given string is the name of a defined macro by going through the list of macros
-Parameters:
-str: The string to check.
-head_node: The head of the macro linked list.
-Returns: The macro node if the string is a macro name, otherwise NULL.
-*/
-static macro_node is_makro_name(char *str,head head_node)
-{
-    macro_node temp;
-    if ( search_command(str) != NOT_COMMAND )
-        return NULL;
-    temp = (head_node.head_of_list);
-    while(temp){
-        if( strcmp( (temp->name) , str ) == 0 ) 
-            return temp;
-        temp = temp -> next;
-    }
-    return NULL;
-}
+
 /* 
 writes the macro content called to the am file.
 By looking for the location of the macro definition in the input file,
@@ -58,10 +39,20 @@ flag: Pointer to an integer flag to indicate an error occurred.
 line_num: The line number where the macro is defined.
 line: The line where the macro is defined.
 */
-static void read_macr(FILE *as_file,char *name, head *head_node,int *flag,int line_num,char *line)
+static void read_macr(FILE *as_file,char *as_name, char *name, head *head_node,int *flag,int line_num,char *line)
 {
     macro_node temp;/*the node of the new macro*/
-    macro_node new_node = (macro_node)malloc(sizeof(struct MacroNode));
+    macro_node new_node; 
+    if(!isalpha(*name)){/*Cheks if the first latter is latter*/
+        eror(as_name, line_num, flag, line, MAC_START);
+        return;
+    }
+    if ( search_command(name) != NOT_COMMAND )/*Cheks if it is a command name*/
+    {
+         eror(as_name, line_num, flag, line, MAC_NAME_COMMAND);
+         return;
+    }
+    new_node = (macro_node)malloc(sizeof(struct MacroNode));
     if (new_node == NULL) {/*memory alucation fail */
         fprintf(stderr,"Failed to allocate memory/n");
         fclose(as_file);
@@ -72,22 +63,17 @@ static void read_macr(FILE *as_file,char *name, head *head_node,int *flag,int li
     new_node->offset = ftell(as_file);
     new_node->next = NULL;
     new_node-> line_number = line_num;
-    if ( search_command(name) != NOT_COMMAND )/*Cheks if it is a command name*/
-    {
-         eror(name, line_num, flag,line, MAC_NAME_COMMAND);
-         free(new_node);
-         return;
-    }
+    
     if ((head_node->head_of_list) == NULL )/*if its the first macro*/
     {
         (head_node->head_of_list) = new_node;
         return;
     }
-    temp = (head_node->head_of_list);
+    temp = (macro_node)(head_node->head_of_list);
     while(temp){/*Going through the list of macros, if the new macro name is already found, an error is reported.
      If not, adds the new node to the end of the list*/
         if( strcmp( (temp->name) , name ) == 0 ){  
-            eror(name,line_num,flag,line,MAC_NAME_AGAIN);
+            eror(as_name,line_num,flag,line,MAC_NAME_AGAIN);
             free(new_node);
             return;
         }
@@ -147,7 +133,7 @@ void pre_pros(FILE *as_file, char *file_name)
                         if ( chek_end_line(rest) ){
                           state=MACRO_READ;
                           /*A call to a function that will add this macro to the list of macros*/
-                          read_macr(as_file,second_word,head_node,&flag,line_number,line);
+                          read_macr(as_file,file_name,second_word,head_node,&flag,line_number,line);
                         }
                         else/* extra chars case*/
                             eror(file_name,line_number,&flag,line, EXTEA_CHARS );  
@@ -157,10 +143,10 @@ void pre_pros(FILE *as_file, char *file_name)
                         if(temp == 1)/*there is no macro name*/
                             eror(file_name,line_number,&flag,line, NO_MAC_NAME );
                         else/*the name of the macro is to long*/
-                            eror(file_name,line_number,&flag,line, MAK_NAME_LONG );
+                            eror(file_name,line_number,&flag,line, MAC_NAME_LONG );
                     }
                 }
-                if((temp_node = is_makro_name(first_word, *head_node))){/*if the line calls out to macro*/
+                if((temp_node = is_macro_name(first_word, *head_node))){/*if the line calls out to macro*/
                     if (temp > 1)/* extra chars case*/
                         eror(file_name,line_number,&flag,line, EXTEA_CHARS );
                     else{

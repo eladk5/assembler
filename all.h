@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAX_SIZE_ENDINDG 12
 #define MAX_SIZE_MEMOREY 3996  
@@ -74,12 +75,20 @@ enum{
         MAC_NAME_AGAIN,
         MAC_NAME_COMMAND,
         EXTEA_CHARS,
-        MAK_NAME_LONG,
+        MAC_NAME_LONG,
         NO_MAC_NAME,
         MACRO_NOT_CLOSE,
         OVER_SIZE,
         ONLY_LABEL,
-        NOT_VALID_COMMAND
+        NOT_VALID_COMMAND,
+        LABEL_LENGTH,
+        NOT_ALPHA,
+        NOT_ALPHA_NUM,
+        LABEL_IS_COMMAND,
+        LABEL_IS_MACRO,
+        LABEL_NAME_AGAIN,
+        MAC_START,
+        FAIL_STRING
 };
 
 /* 
@@ -157,3 +166,6 @@ Parameters:
 head_node: The head of the macro linked list.
 */
 static void free_the_mac(head head_node);
+
+
+macro_node is_macro_name(char *str,head head_node);

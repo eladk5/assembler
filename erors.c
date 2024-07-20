@@ -30,8 +30,8 @@ void eror(char *file_name, int line_num, int *flag,char *line, int eror_num){
     case EXTEA_CHARS:
          printf("There are extra characters at the end of the line\n");\
           break;
-    case MAK_NAME_LONG:
-        printf("The name of the makro is to long, it must not be more than 31 characters\n");
+    case MAC_NAME_LONG:
+        printf("The name of the macro is to long, it must not be more than 31 characters\n");
          break;
     case NO_MAC_NAME:
         printf("There is a macro declaration without a macro name\n");
@@ -45,11 +45,37 @@ void eror(char *file_name, int line_num, int *flag,char *line, int eror_num){
     case ONLY_LABEL:
         printf("In this line only a label appears, after a label there must come a prompt or instruction line\n");
         break;
-        case NOT_VALID_COMMAND:
+    case NOT_VALID_COMMAND:
         printf("This line does not have a valid command or prompt\n");
         break; 
+    case LABEL_LENGTH:
+        printf("The label defined in this line contains more than 31 characters and is therefore too long\n");
+        break;
+    case NOT_ALPHA:
+        printf("Valid label must begin with alphabetic char\n");
+        break;
+    case NOT_ALPHA_NUM:
+        printf("Valid label must have only alphabetic or numbers chars\n");
+        break;
+    case LABEL_IS_COMMAND:
+        printf("A label name must not be the name of a command\n");
+        break;
+    case LABEL_IS_MACRO:
+        printf("A label name must not be the name of a macro\n");
+        break;
+    case LABEL_NAME_AGAIN:
+        printf("the name of the macro is taken by other label\n");
+        break;
+    case MAC_START:
+        printf("Valid macro name must begin with alphabetic char\n");
+        break;
+    case FAIL_STRING:
+        printf("Invalid string value, the entire string must be between \" \"\n");
+        break;
+
     default:
         break;
+    
     }
     printf("-------------------------------------------------------");
 }
