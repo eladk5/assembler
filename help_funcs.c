@@ -18,6 +18,60 @@ void remove_blanks(char str[])
     	str[i] = '\0';  /* Add null */
 	}
 
+
+/*
+This function verifies that a string of numbers separated by commas is correctly formatted using a state machine,
+which follows whether we are now expecting a number, a comma or within a number. and changes situations accordingly 
+It ensures numbers are properly separated by commas, handles misplaced commas, and removes extra spaces if the string is valid.
+Note: This function treats any character that is not white or a comma as a number
+
+Parameters:
+str: A pointer to the input string containing numbers separated by commas.
+Return Values:
+COMMA (19): Misplaced or consecutive commas without numbers in between.
+MISS_COMMA (21): Missing comma between numbers.
+T (1): The string is valid and properly formatted.*/
+int check_numbers_saperate(char *str){
+    char *temp=str;
+    enum{ WAIT_NUM, WAIT_COMMA, IN_NUM};
+    int status = WAIT_NUM; 
+    while (*temp)
+    {
+        switch (status)
+        {
+        case  WAIT_NUM:/*Comma is not allowed until ew get to not blank*/
+            if( !isspace(*temp) ){
+                if((*temp) == ',')
+                    return COMMA;
+                else
+                    status = IN_NUM;
+            }
+            break;
+        case IN_NUM:
+            if(isspace(*temp))
+                status = WAIT_COMMA;
+            if(*temp == ',')
+                status = WAIT_NUM;
+            break;
+        case WAIT_COMMA:
+            if(*temp == ',')
+                status = WAIT_NUM;
+            else{
+                if(!isspace(*temp))
+                    return MISS_COMMA;
+            }
+            break;
+        }
+        temp++;
+    }
+    if (status == WAIT_NUM)/*the string ends with comma*/
+    {
+        return COMMA;
+    }
+    remove_blanks(str);
+    return T;
+}
+
 /*Accepts a string and checks if it contains only white characters, if so returns T otherwise F.
 This is done by removing the white characters and checking the length of the remaining string*/
 int chek_end_line(char * str)
@@ -77,3 +131,33 @@ macro_node is_macro_name(char *str,head head_node)
     }
     return NULL;
 }
+
+/*Converts a string representing a number into an integer, 
+handling optional leading '+' or '-' signs. 
+It uses strtol for conversion and checks for errors such as non-numeric characters or out-of-range values. 
+If an error is detected, it sets an error flag and returns 0.
+The function processes the string, skips an optional sign, converts the numeric part, and negates the result if necessary.
+
+Parameters:
+
+am_name: The name of the file being processed.
+line_num: The current line number in the file.
+eror_flag: Pointer to an integer flag used to indicate if an error occurred.
+line: The original line of code being processed.
+str: The string to be converted to an integer.
+return: The number read from the string. (If there is an error, junk is returned)
+*/
+int get_num(char *am_name,int line_num,int *eror_flag,char *line,char *str)
+{
+    int num ;
+    char *temp, c = *str;
+    if( c == '+' || c == '-')
+        str++;
+    num = strtol(str,&temp,DECIMAL);
+    if(*temp)/*Checks if the end of the converted string is NULL*/
+        eror(am_name,line_num,eror_flag,line,NOT_NUMBER);
+    if(c == '-')
+        num = (-num);
+    return num;
+}
+

@@ -1,4 +1,5 @@
-#include<stdio.h>
+#include "all.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -72,8 +73,25 @@ void eror(char *file_name, int line_num, int *flag,char *line, int eror_num){
     case FAIL_STRING:
         printf("Invalid string value, the entire string must be between \" \"\n");
         break;
-
+    case NOT_NUMBER:
+        printf("Invalid value,No numeric value was received in the intended location \n");
+        break;
+    case COMMA:
+        printf("An invalid comma was found. Note that the line cannot start or end with a comma, and 2 commas in a row without a numerical value in between are not allowed.\n");
+        break;
+    case NO_PARAMS:
+        printf("promote or instraction was declared without the right amuont of parameters\n");
+        break;
+    case MISS_COMMA:
+        printf("All two numbers must be separated by a comma\n");
+        break;
+    case NO_VALID_METHOD:
+        printf("A command was sent with an operand that does not match the command type\n");
+        break;
     default:
+        break;
+    case NUM_REP: 
+        printf("The number you entered is too large or too small, and is not suitable for representation in the appropriate number of bits\n");
         break;
     
     }

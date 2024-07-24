@@ -36,6 +36,7 @@ int main(int argc,char *argv[])
  			fprintf(stderr, "Error opening file: %s\n",new_file_name);/* the file dont open */
 		} else {
             pre_pros(ifp, new_file_name);
+			free(new_file_name);
             fclose(ifp);
         }
 		
