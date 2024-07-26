@@ -131,6 +131,18 @@ macro_node is_macro_name(char *str,head head_node)
     }
     return NULL;
 }
+label_node is_label_name(char *str,head head_node)
+{
+    label_node temp;
+    temp = (head_node.head_of_list);
+    while(temp){
+        if( strcmp( (temp->name) , str ) == 0 ) 
+            return temp;
+        temp = temp -> next;
+    }
+    return NULL;
+}
+
 
 /*Converts a string representing a number into an integer, 
 handling optional leading '+' or '-' signs. 
@@ -147,7 +159,7 @@ line: The original line of code being processed.
 str: The string to be converted to an integer.
 return: The number read from the string. (If there is an error, junk is returned)
 */
-int get_num(char *am_name,int line_num,int *eror_flag,char *line,char *str)
+int get_num(erors_node eror_node, char *str)
 {
     int num ;
     char *temp, c = *str;
@@ -155,7 +167,7 @@ int get_num(char *am_name,int line_num,int *eror_flag,char *line,char *str)
         str++;
     num = strtol(str,&temp,DECIMAL);
     if(*temp)/*Checks if the end of the converted string is NULL*/
-        eror(am_name,line_num,eror_flag,line,NOT_NUMBER);
+        eror(eror_node,NOT_NUMBER);
     if(c == '-')
         num = (-num);
     return num;

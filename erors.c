@@ -14,9 +14,9 @@ flag: Pointer to an integer flag to indicate an error occurred.
 line: The line where the error occurred.
 eror_num: The error number indicating the type of error.
 */
-void eror(char *file_name, int line_num, int *flag,char *line, int eror_num){
-    *flag = F;
-    printf("\neror: in file: %s,line number %d\nin the line:%s\n",file_name,line_num,line );
+void eror(erors_node eror_node,int eror_num){
+    *eror_node.flag = F;
+    printf("\neror: in file: %s,line number %d\nin the line:%s\n",eror_node.file_name,*eror_node.line_num,eror_node.line);
     switch (eror_num)
     {
     case LINE_LENGTH:
@@ -29,7 +29,7 @@ void eror(char *file_name, int line_num, int *flag,char *line, int eror_num){
         printf("the name of the macro is illegal because it name of command\n");
         break;
     case EXTEA_CHARS:
-         printf("There are extra characters at the end of the line\n");\
+         printf("There are extra characters at the end of the line. Maybe you inserted extra operands?\n");\
           break;
     case MAC_NAME_LONG:
         printf("The name of the macro is to long, it must not be more than 31 characters\n");
@@ -96,4 +96,20 @@ void eror(char *file_name, int line_num, int *flag,char *line, int eror_num){
     
     }
     printf("-------------------------------------------------------");
+}
+void eror_label(char *file_name, int *eror_flag, int line_num, int eror_num)
+{
+    *eror_flag = F;
+    printf("\neror: in file: %s,line number %d\n",file_name,line_num);
+    switch(eror_num)
+    {
+        case ENTRY_NOT_EXIXT:
+        printf("In this line you declared a label as an entry but this label does not exist in the file.\n");
+        break;
+        case EXTERN_IS_LABEL:
+        printf("In this line you declared a label as an extern but this label also regular label in your file.\n");
+        break;
+    }
+    printf("-------------------------------------------------------");
+
 }

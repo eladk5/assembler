@@ -1,6 +1,6 @@
-#include "all.h"
-#include "help_funcs.c"
 #include "erors.c"
+#include "help_funcs.c"
+
 
 
 
@@ -39,17 +39,17 @@ flag: Pointer to an integer flag to indicate an error occurred.
 line_num: The line number where the macro is defined.
 line: The line where the macro is defined.
 */
-static void read_macr(FILE *as_file,char *as_name, char *name, head *head_node,int *flag,int line_num,char *line)
+static void read_macr(FILE *as_file, char *name, head *head_node,erors_node eror_node)
 {
     macro_node temp;/*the node of the new macro*/
     macro_node new_node; 
     if(!isalpha(*name)){/*Cheks if the first latter is latter*/
-        eror(as_name, line_num, flag, line, MAC_START);
+        eror(eror_node, MAC_START);
         return;
     }
     if ( search_command(name) != NOT_COMMAND )/*Cheks if it is a command name*/
     {
-         eror(as_name, line_num, flag, line, MAC_NAME_COMMAND);
+         eror(eror_node,MAC_NAME_COMMAND);
          return;
     }
     new_node = (macro_node)malloc(sizeof(struct MacroNode));
@@ -62,7 +62,7 @@ static void read_macr(FILE *as_file,char *as_name, char *name, head *head_node,i
     strcpy(new_node->name, name);
     new_node->offset = ftell(as_file);
     new_node->next = NULL;
-    new_node-> line_number = line_num;
+    new_node-> line_number = *eror_node.line_num;
     
     if ((head_node->head_of_list) == NULL )/*if its the first macro*/
     {
@@ -73,7 +73,7 @@ static void read_macr(FILE *as_file,char *as_name, char *name, head *head_node,i
     while(temp){/*Going through the list of macros, if the new macro name is already found, an error is reported.
      If not, adds the new node to the end of the list*/
         if( strcmp( (temp->name) , name ) == 0 ){  
-            eror(as_name,line_num,flag,line,MAC_NAME_AGAIN);
+            eror(eror_node,MAC_NAME_AGAIN);
             free(new_node);
             return;
         }
@@ -112,6 +112,10 @@ void pre_pros(FILE *as_file, char *file_name)
     int temp,temp_buffer; /* Temporary variables*/
     char new_file_name[MAX_FILE_NAME];/* To store the name of the current file whith .am ending */
 
+    erors_node eror_node;
+    eror_node.file_name= file_name;
+    eror_node.flag = &flag;
+    eror_node.line_num = &line_number;
     (head_node->head_of_list) = NULL;
     strcpy(new_file_name,file_name);
     new_file_name[strlen(new_file_name)-1]='m'; /* Change the extension to .am */
@@ -120,6 +124,7 @@ void pre_pros(FILE *as_file, char *file_name)
         return;
 		} 
     while (fgets(line, MAX_LINE_LENGTH ,as_file) ) {/*reading new line*/
+        eror_node.line=line;
         first_word[0] = '\0';
         second_word[0] = '\0';
         line_number++;
@@ -133,22 +138,22 @@ void pre_pros(FILE *as_file, char *file_name)
                         if ( chek_end_line(rest) ){
                           state=MACRO_READ;
                           /*A call to a function that will add this macro to the list of macros*/
-                          read_macr(as_file,file_name,second_word,head_node,&flag,line_number,line);
+                          read_macr(as_file,second_word,head_node,eror_node);
                         }
                         else/* extra chars case*/
-                            eror(file_name,line_number,&flag,line, EXTEA_CHARS );  
+                            eror( eror_node,EXTEA_CHARS );  
                     }
                  
                     else{ /*else to ( temp>1 && strlen(second_word) <= MAX_LABEL_LENGTH)*/
                         if(temp == 1)/*there is no macro name*/
-                            eror(file_name,line_number,&flag,line, NO_MAC_NAME );
+                            eror( eror_node,NO_MAC_NAME );
                         else/*the name of the macro is to long*/
-                            eror(file_name,line_number,&flag,line, MAC_NAME_LONG );
+                            eror( eror_node,MAC_NAME_LONG );
                     }
                 }
                 if((temp_node = is_macro_name(first_word, *head_node))){/*if the line calls out to macro*/
                     if (temp > 1)/* extra chars case*/
-                        eror(file_name,line_number,&flag,line, EXTEA_CHARS );
+                        eror(eror_node, EXTEA_CHARS );
                     else{
                         /*Saves the current location in the file and calls a function that will copy the contents of the macro*/
                         temp_buffer = ftell(as_file);
@@ -172,7 +177,7 @@ void pre_pros(FILE *as_file, char *file_name)
                 if(sscanf(line,"%s",first_word) && strcmp(first_word,"endmacr") == 0){
                     rest= strstr(line, first_word) + strlen(first_word);
                     if ( chek_end_line(rest) == F )/*extra chars*/
-                        eror(file_name,line_number,&flag,line, EXTEA_CHARS);
+                        eror(eror_node,EXTEA_CHARS);
                     state = NOT_MACRO;
                 }
                 break;
@@ -182,15 +187,15 @@ void pre_pros(FILE *as_file, char *file_name)
     
     }
     if(state == MACRO_READ)/*If we finished the file when there is a macro that never closed*/
-        eror(file_name,line_number,&flag,line, MACRO_NOT_CLOSE);
+        eror(eror_node,MACRO_NOT_CLOSE);
+    fclose(as_file);
     /*if(flag){
         fseek(am_file,0,SEEK_SET);
 		first_pass(new_file_name,head_node,am_file);
         }
-        else*/
-                free_the_mac(*head_node);
-        fclose(am_file);
-        
+        else
+            free_the_mac(head_node_macro);
+        */
 }
 
 

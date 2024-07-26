@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#define MIN_QOUTES 2
 #define START_SIZE 50
 #define MAX_SIZE_ENDINDG 12
 #define MAX_SIZE_MEMOREY 3996  
@@ -21,8 +22,17 @@
 #define CHAR_TO_NAM(A) ( (A)-'0' )
 #define IS_WITHIN_12_BITS(num) ((num) >= -2048 && (num) <= 2047)
 #define IS_WITHIN_15_BITS(num) ((num) >= -16384 && (num) <= 16383)
+#define PROMPTE 1
+#define INCTRACTION 2
+#define METHOD(A) ( 1 << A )
 
-
+struct ErorNode{
+    char *file_name;
+    int *line_num; 
+    int *flag; 
+    char *line; 
+} ;
+typedef struct ErorNode erors_node;
 
 /* Structure to hold command names and their corresponding opcodes */
 struct {
@@ -122,7 +132,10 @@ enum erors{
         NO_PARAMS,
         MISS_COMMA,
         NO_VALID_METHOD,
-        NUM_REP
+        NUM_REP,
+        ENTRY_NOT_EXIXT,
+        EXTERN_IS_LABEL,
+        FAIL_LABEL
 };
 
 
@@ -143,8 +156,9 @@ line_num: The line number where the error occurred.
 flag: Pointer to an integer flag to indicate an error occurred.
 line: The line where the error occurred.
 eror_num: The error number indicating the type of error.
-*/
-void eror(char *file_name, int line_num, int *flag,char *line, int eror_num);
+
+void eror(char *file_name, int line_num, int *flag,char *line, int eror_num);*/
+
 /*
 Checks if a string contains only white characters. If so, returns T, otherwise, returns F.
 Parameters:
@@ -195,7 +209,9 @@ enum method{
 };
 struct Command
 {
+        int line_number;
         int type_of_instraction;/*first command, namber,label or register (from enum instraction_type)*/
+        char label_name[MAX_LINE_LENGTH];/*only for label commands, will contain the label*/
         instruction ins;/*the struct of instruction*/
 };
 typedef struct Command command;
@@ -229,7 +245,7 @@ eror_flag: Pointer to an integer flag used to indicate if an error occurred.
 line: The original line of code being processed.
 str: The string to be converted to an integer.
 return: The number read from the string. (If there is an error, junk is returned)*/
-int get_num(char *am_name,int line_num,int *eror_flag,char *line,char *str);
+int get_num(erors_node eror_node,char *str);
 
 
 /*
