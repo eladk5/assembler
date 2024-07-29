@@ -1,11 +1,11 @@
-#include<stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include "all.h"
+#define NOT_FIRST
+#include "passes.h"
+
 
 /*Gets string and remuving all the blanks from the string
 by loop that index j goes all over the string and the index i is promoted only when j finds a character that is not a blunk and puts in the i position what is in the j position */
-void remove_blanks(char str[])
+static void remove_blanks(char str[])
 	{
 	int i=0, j=0;/* for index */
 	int l = strlen(str);/* for the length of the string */
@@ -100,7 +100,7 @@ Frees the memory allocated for the macros in the head_node.
 Parameters:
 head_node: The head of the macro linked list.
 */
-static void free_the_mac(head head_node)
+void free_the_mac(head head_node)
 {
     macro_node temp, next_temp;
     if (head_node.head_of_list )
@@ -131,6 +131,7 @@ macro_node is_macro_name(char *str,head head_node)
     }
     return NULL;
 }
+
 label_node is_label_name(char *str,head head_node)
 {
     label_node temp;
@@ -173,3 +174,11 @@ int get_num(erors_node eror_node, char *str)
     return num;
 }
 
+/*change the extension of filename to new_ext */
+void change_extension(char *filename, const char *new_ext) {
+    char *dot = strrchr(filename, '.'); /* Find the last dot in the filename*/
+    if (dot != NULL) {
+        dot++;
+        strcpy(dot, new_ext); /* Replace the extension*/
+    }
+}

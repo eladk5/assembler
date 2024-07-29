@@ -9,7 +9,6 @@ file_name: The name of the input file.
 */
 void pre_pros(FILE *, char *);
 
-void first_pass(char *am_name,head *head_node_mac,FILE *am_file);
 
 int main(int argc,char *argv[])
 {
@@ -37,7 +36,7 @@ int main(int argc,char *argv[])
 		} else {
             pre_pros(ifp, new_file_name);
 			free(new_file_name);
-            fclose(ifp);
+            /*fclose(ifp);*/
         }
 		
 		   

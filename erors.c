@@ -1,7 +1,5 @@
 #include "all.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 
 /* 
 Handles and prints error messages based on the error number.
@@ -108,6 +106,9 @@ void eror_label(char *file_name, int *eror_flag, int line_num, int eror_num)
         break;
         case EXTERN_IS_LABEL:
         printf("In this line you declared a label as an extern but this label also regular label in your file.\n");
+        break;
+        case FAIL_LABEL:
+        printf("In this line you declared the insertion of an argument that was not declared as an outer or normal label. and is not a valid number or register.\n");
         break;
     }
     printf("-------------------------------------------------------");

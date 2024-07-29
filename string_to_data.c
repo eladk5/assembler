@@ -1,3 +1,6 @@
+#include "all.h"
+#define NOT_FIRST
+#include "passes.h"
 
 /*  This function processes a single operand from a line of assembly code, determining its type and storing
     it in the provided instruction structure. It handles numeric literals, direct registers, and pointer registers.
@@ -131,8 +134,9 @@ void two_operands(erors_node eror_node, int command_type,char *rest_line,int *ic
     (*coms)[(*ic)].line_number = *eror_node.line_num;
     if( ( (method_1 == D_REGISTER) || (method_1 == P_REGISTER) ) && ( (method_2 == D_REGISTER) || (method_2 == P_REGISTER) ) ){
     /*if both of the operands are registers*/
-        (*coms)[(*ic)].ins.register_word.target_operand = operand_1.register_word.target_operand ;
-        (*coms)[(*ic)].ins.register_word.source_operand = operand_2.register_word.source_operand;
+        (*coms)[(*ic)].ins.register_word.a = T;
+        (*coms)[(*ic)].ins.register_word.source_operand = operand_1.register_word.source_operand ;
+        (*coms)[(*ic)].ins.register_word.target_operand = operand_2.register_word.target_operand;
     }else{ 
         if(method_1 != LABEL)
             (*coms)[(*ic)].ins = operand_1;

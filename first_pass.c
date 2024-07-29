@@ -1,6 +1,7 @@
-#include "erors.c"
-#include "help_funcs.c"
-#include "string_to_data.c"
+#include "all.h"
+#define FIRST_PASS
+#include "passes.h"
+void second_pass(erors_node erors_node,command (*coms)[MAX_SIZE_MEMOREY] , int ic, short (*data)[MAX_SIZE_MEMOREY], int dc  ,char (**exters)[],int ex_c,head *labels,int en_c);
 
 static void check_entey(erors_node eror_node, char (**enters)[MAX_LINE_LENGTH],int **enters_line_num, int en_c,head *labels)
 {
@@ -88,8 +89,20 @@ static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,h
     }
     return NULL;
 }
+static void change_adress(head label_head,int ic)
+{   
+    label_node temp;
+    temp = label_head.head_of_list;
+    while(temp){
+        if((temp->flag_type) == PROMPTE)
+            temp->adress += (FIRST_MEM+ic);
+        else
+            temp->adress += FIRST_MEM;
+        temp = (temp->next);
+    }
+}
 
-void first_pass(char *am_name,head *head_node_mac,FILE *am_file)
+void first_pass(char *am_name,head *head_node_mac)
 {
     int size_en = START_SIZE,size_ex = START_SIZE ;/*Contains the size of the data structures assigned to .extern and .entry respectively*/
     char (*enters)[MAX_LINE_LENGTH],(*exters)[MAX_LINE_LENGTH];/*to contain the names of the externs and entry*/
@@ -103,6 +116,7 @@ void first_pass(char *am_name,head *head_node_mac,FILE *am_file)
     int line_num =0;/*lines counter*/
     char label[MAX_LINE_LENGTH];/*to contain the label evry line*/
     int temp,i;
+    FILE *am_file;
     int command_type; /*will contain the opcode of the command or the enum value if its promote  */
     char first_word[MAX_LINE_LENGTH]; /*to read the first word after the label*/
     label_node new_label;
@@ -110,7 +124,8 @@ void first_pass(char *am_name,head *head_node_mac,FILE *am_file)
     eror_node.file_name= am_name;
     eror_node.flag = &eror_flag;
     eror_node.line_num = &line_num;
-    
+
+    *line = '\0';
     enters = malloc(START_SIZE * MAX_LINE_LENGTH * sizeof(char));
     exters = malloc(START_SIZE * MAX_LINE_LENGTH * sizeof(char));
     enters_line_num = malloc(START_SIZE *  sizeof(int));
@@ -124,6 +139,11 @@ void first_pass(char *am_name,head *head_node_mac,FILE *am_file)
         *(exters[i]) = '\0';
     }
     label_head.head_of_list =NULL;
+    if ((am_file=fopen(am_name,"r")) == NULL){
+ 		fprintf(stderr, "Error opening file: %s\n",am_name);/* the file dont open */
+        return;
+		} 
+    fseek(am_file, 0, SEEK_SET); 
     while (fgets(line, MAX_LINE_LENGTH+1 ,am_file) ) /*reading new line */
     {
         eror_node.line=line;
@@ -245,19 +265,9 @@ void first_pass(char *am_name,head *head_node_mac,FILE *am_file)
     }/*close the while*/
     check_entey(eror_node,&enters,&enters_line_num,en_c,&label_head);
     check_extern(eror_node,&exters,&exters_line_num,ex_c,&label_head);
+    change_adress(label_head,ic);
     free(exters_line_num);
     free(enters_line_num);
-
     fclose(am_file);
-}
-
-
-int main()
-{
-    head h;
-    FILE *ifp;
-    h.head_of_list =NULL;
-    ifp=fopen("test_data.am","r");
-    first_pass("test_data.am",&h,ifp);
-    return 0;
+    second_pass(eror_node,&coms,ic,&data,dc,&exters,ex_c,&label_head,en_c);
 }

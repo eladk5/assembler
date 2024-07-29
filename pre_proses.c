@@ -1,7 +1,5 @@
-#include "erors.c"
-#include "help_funcs.c"
-
-
+#define PRE_PROSES
+#include "all.h"
 
 
 /* 
@@ -100,6 +98,7 @@ Returns: T if no errors were found during the preassembler, otherwise F.
 */
 void pre_pros(FILE *as_file, char *file_name)
 {
+    enum{ NOT_MACRO, MACRO_READ, MACRO_CALL};/*the states of the state machine*/
     head head_node_macro,*head_node= &head_node_macro;/* Head of the macro linked list */
     int state = NOT_MACRO;/* Current state of the state machine */
     macro_node temp_node;/* Temporary macro node */
@@ -110,15 +109,22 @@ void pre_pros(FILE *as_file, char *file_name)
     FILE *am_file; /* Output file with .am extension */
     int line_number = 0;/* Counter for line numbers */
     int temp,temp_buffer; /* Temporary variables*/
-    char new_file_name[MAX_FILE_NAME];/* To store the name of the current file whith .am ending */
+    char *new_file_name;/* To store the name of the current file whith .am ending */
+    
+
 
     erors_node eror_node;
     eror_node.file_name= file_name;
     eror_node.flag = &flag;
     eror_node.line_num = &line_number;
     (head_node->head_of_list) = NULL;
+    new_file_name = malloc(strlen(file_name)+MAX_SIZE_ENDINDG);
+    if (new_file_name == NULL) {
+			fprintf(stderr,"\nFailed to allocate memory");
+			exit(1);
+		}
     strcpy(new_file_name,file_name);
-    new_file_name[strlen(new_file_name)-1]='m'; /* Change the extension to .am */
+    change_extension(new_file_name,"am"); /* Change the extension to .am */
     if ((am_file=fopen(new_file_name,"w")) == NULL){
  		fprintf(stderr, "Error opening file: %s\n",new_file_name);/* the file dont open */
         return;
@@ -189,21 +195,21 @@ void pre_pros(FILE *as_file, char *file_name)
     if(state == MACRO_READ)/*If we finished the file when there is a macro that never closed*/
         eror(eror_node,MACRO_NOT_CLOSE);
     fclose(as_file);
-    /*if(flag){
-        fseek(am_file,0,SEEK_SET);
-		first_pass(new_file_name,head_node,am_file);
+    fclose(am_file);
+    if(flag){
+		first_pass(new_file_name,head_node);
         }
-        else
-            free_the_mac(head_node_macro);
-        */
+    else
+        free_the_mac(head_node_macro);
+        
 }
 
 
-
+/*
 int main()
 {
     FILE *ifp;
     ifp=fopen("test_fails_macro.as","r");
     pre_pros(ifp,"test_fails_macro.as");
     return 0;
-}
+}*/
