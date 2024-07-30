@@ -1,6 +1,20 @@
 #include "all.h"
 #include "passes.h"
+void print_short_binary(short number) {
+    int bits = sizeof(short) * 8; 
+    int i;
+    unsigned short mask = 1 << (bits - 1);
 
+    for ( i = 0; i < bits; i++) {
+        if (number & mask) {
+            printf("1");
+        } else {
+            printf("0");
+        }
+        mask >>= 1;
+    }
+    printf("\n");
+}
 
 int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short (*data)[MAX_SIZE_MEMOREY] ,int dc )
 {
@@ -43,16 +57,18 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
             printf("target:%d\n",(*coms)[i].ins.register_word.target_operand);
             temp |=  (*coms)[i].ins.register_word.a << 2;
             temp |=  (*coms)[i].ins.register_word.target_operand << 3;
-            temp |=  (*coms)[i].ins.register_word.source_operand << 7;
+            temp |=  (*coms)[i].ins.register_word.source_operand << 6;
             break;
         default:
             break;
         }
+        print_short_binary((unsigned short)temp & 0x7FFF);
         fprintf(ob_file,"%05d %05o\n",memorey, (unsigned short)temp & 0x7FFF);
     }
     for(i=0; i < dc ; i++ ,memorey++)
     {
         printf("data adress:%d data:%d \n",memorey, (*data)[i]);
+        print_short_binary((unsigned short)(*data)[i] & 0x7FFF);
         fprintf(ob_file,"%05d %05o\n",memorey,(unsigned short)(*data)[i] & 0x7FFF);
     }
     return T;

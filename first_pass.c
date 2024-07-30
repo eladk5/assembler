@@ -59,10 +59,8 @@ static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,h
     new_label = (label_node)malloc(sizeof(struct Label));
     if (new_label==NULL)/*memorey allocation fail*/
     {
-        fprintf(stderr,"Failed to allocate memory/n");
+        fprintf(stderr,"Failed to allocate memory\n");
         fclose(am_file);
-        /*free_the_label(head_label);*/
-        free_the_mac(*head_mac);
         exit(1);
         }
     strcpy(new_label->name,label);
@@ -270,4 +268,6 @@ void first_pass(char *am_name,head *head_node_mac)
     free(enters_line_num);
     fclose(am_file);
     second_pass(eror_node,&coms,ic,&data,dc,&exters,ex_c,&label_head,en_c);
+    free(exters);
+    free(enters);
 }

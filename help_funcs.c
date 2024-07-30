@@ -96,7 +96,7 @@ int search_command (char *str)
 	return NOT_COMMAND;
 }
 /* 
-Frees the memory allocated for the macros in the head_node.
+Frees the memory allocated for the macros list.
 Parameters:
 head_node: The head of the macro linked list.
 */
@@ -113,6 +113,25 @@ void free_the_mac(head head_node)
         }
     }
 }
+/* 
+Frees the memory allocated for the labels list.
+Parameters:
+head_node: The head of the labels linked list.
+*/
+void free_the_labels(head head_node)
+{
+    label_node temp, next_temp;
+    if (head_node.head_of_list )
+    {
+        temp = head_node.head_of_list;
+        while(temp){
+            next_temp = (temp -> next);
+            free(temp);
+            temp = next_temp;   
+        }
+    }
+}
+
 /* 
 Checks if a given string is the name of a defined macro by going through the list of macros
 Parameters:

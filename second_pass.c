@@ -65,5 +65,6 @@ void second_pass(erors_node erors_node,command (*coms)[MAX_SIZE_MEMOREY] , int i
                 }
             }
         }
+        free(new_file_name);
     }
 }

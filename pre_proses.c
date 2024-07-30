@@ -140,7 +140,8 @@ void pre_pros(FILE *as_file, char *file_name)
             if ( (temp = sscanf(line, "%s%s", first_word, second_word)) ){
                 if ( (strcmp(first_word, "macr") )== 0){/*Is a macro statement*/
                     if  ( temp>1 && strlen(second_word) <= MAX_LABEL_LENGTH) {
-                        rest= strstr(line, second_word) + strlen(second_word);
+                        rest= strstr(line, first_word) + strlen(first_word);
+                        rest= strstr(rest, second_word) + strlen(second_word);
                         if ( chek_end_line(rest) ){
                           state=MACRO_READ;
                           /*A call to a function that will add this macro to the list of macros*/
@@ -194,22 +195,9 @@ void pre_pros(FILE *as_file, char *file_name)
     }
     if(state == MACRO_READ)/*If we finished the file when there is a macro that never closed*/
         eror(eror_node,MACRO_NOT_CLOSE);
-    fclose(as_file);
     fclose(am_file);
-    if(flag){
+    if(flag)
 		first_pass(new_file_name,head_node);
-        }
-    else
-        free_the_mac(head_node_macro);
-        
+    free(new_file_name);
+    free_the_mac(head_node_macro);  
 }
-
-
-/*
-int main()
-{
-    FILE *ifp;
-    ifp=fopen("test_fails_macro.as","r");
-    pre_pros(ifp,"test_fails_macro.as");
-    return 0;
-}*/

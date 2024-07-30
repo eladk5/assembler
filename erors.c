@@ -63,7 +63,7 @@ void eror(erors_node eror_node,int eror_num){
         printf("A label name must not be the name of a macro\n");
         break;
     case LABEL_NAME_AGAIN:
-        printf("the name of the macro is taken by other label\n");
+        printf("the name of the label is taken by other label\n");
         break;
     case MAC_START:
         printf("Valid macro name must begin with alphabetic char\n");

@@ -115,6 +115,7 @@ void two_operands(erors_node eror_node, int command_type,char *rest_line,int *ic
     if (!sscanf(rest_line," %[^, ] ,%s",first_word,second_word) || chek_end_line(first_word) || chek_end_line(second_word))
     { /* Check if there are valid operands */
         eror(eror_node,NO_PARAMS);/*If not enough arguments were received*/
+        return;
     }
     method_1 = read_operand(eror_node,first_word,&operand_1,SOURCE);
     method_2 = read_operand(eror_node,second_word,&operand_2,TARGET);

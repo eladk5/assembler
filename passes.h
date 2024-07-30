@@ -33,6 +33,7 @@ Cmd cmd[]={/*Each command here is placed in the place of its opcode in the array
         {".data",   {{F}, {F}}},
         {".string", {{F}, {F}}}  
    };
+   void free_the_labels(head head_node);
 #endif
 #ifdef NOT_FIRST
 extern Cmd cmd[];
@@ -195,6 +196,9 @@ line: The original line of code being processed.
 str: The string to be converted to an integer.
 return: The number read from the string. (If there is an error, junk is returned)*/
 int get_num(erors_node eror_node,char *str);
+
+
+
 label_node is_label_name(char *str,head head_node);
 void eror_label(char *file_name, int *eror_flag, int line_num, int eror_num);
 int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short (*data)[MAX_SIZE_MEMOREY] ,int dc );

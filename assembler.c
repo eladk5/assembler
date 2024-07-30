@@ -31,15 +31,13 @@ int main(int argc,char *argv[])
 			return 1;
 		}
         sprintf(new_file_name, "%s.as", file_name);
-		if ((ifp=fopen(new_file_name,"r")) == NULL){
+		if ((ifp=fopen(new_file_name,"r")) == NULL)
  			fprintf(stderr, "Error opening file: %s\n",new_file_name);/* the file dont open */
-		} else {
+		else{ 
             pre_pros(ifp, new_file_name);
-			free(new_file_name);
-            /*fclose(ifp);*/
-        }
-		
-		   
+			fclose(ifp);
+		}
+		free(new_file_name);
 	}
     return 0;
 }
