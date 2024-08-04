@@ -35,9 +35,6 @@ void eror(erors_node eror_node,int eror_num){
     case NO_MAC_NAME:
         printf("There is a macro declaration without a macro name\n");
         break;
-    case MACRO_NOT_CLOSE:
-        printf("You finished the file, and there is still a call line for the macro that was not followed by \"endmacr\"\n");
-        break;
     case OVER_SIZE:
         printf("You wrote too many commands, the computer doesn't have enough space for it.\nRemember, there is a maximum of 3096 words\n");
         break;
@@ -93,7 +90,7 @@ void eror(erors_node eror_node,int eror_num){
         break;
     
     }
-    printf("-------------------------------------------------------");
+    printf("-------------------------------------------------------\n");
 }
 void eror_label(char *file_name, int *eror_flag, int line_num, int eror_num)
 {
@@ -111,6 +108,6 @@ void eror_label(char *file_name, int *eror_flag, int line_num, int eror_num)
         printf("In this line you declared the insertion of an argument that was not declared as an outer or normal label. and is not a valid number or register.\n");
         break;
     }
-    printf("-------------------------------------------------------");
+    printf("-------------------------------------------------------\n");
 
 }

@@ -1,7 +1,6 @@
 #include "all.h"
-#define FIRST_PASS
 #include "passes.h"
-void second_pass(erors_node erors_node,command (*coms)[MAX_SIZE_MEMOREY] , int ic, short (*data)[MAX_SIZE_MEMOREY], int dc  ,char (**exters)[],int ex_c,head *labels,int en_c);
+#include "first_pass.h"
 
 static void check_entey(erors_node eror_node, char (**enters)[MAX_LINE_LENGTH],int **enters_line_num, int en_c,head *labels)
 {
@@ -60,11 +59,10 @@ static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,h
     if (new_label==NULL)/*memorey allocation fail*/
     {
         fprintf(stderr,"Failed to allocate memory\n");
-        fclose(am_file);
         exit(1);
-        }
+    }
     strcpy(new_label->name,label);
-    (new_label->is_entry)=F;/*By default, later it will be checked if it was set that way.*/
+    (new_label->is_entry)=F;/*By default, later it will be checked if it was set as  entry.*/
     new_label->next = NULL;
     if ((head_label->head_of_list) == NULL )/*if its the first label*/
     {
@@ -92,7 +90,7 @@ static void change_adress(head label_head,int ic)
     label_node temp;
     temp = label_head.head_of_list;
     while(temp){
-        if((temp->flag_type) == PROMPTE)
+        if((temp->flag_type) == DIRECTIVE)
             temp->adress += (FIRST_MEM+ic);
         else
             temp->adress += FIRST_MEM;
@@ -109,11 +107,11 @@ void first_pass(char *am_name,head *head_node_mac)
     command coms[MAX_SIZE_MEMOREY]={0};/*whill contain all the regular instraction words*/
 	short data[MAX_SIZE_MEMOREY]={0};/*whill contain all the data or string words*/
 	int eror_flag=T;
-    char line[MAX_LINE_LENGTH+1],*rest_line;/* To store new line evry time (the 1 for NULL)*/
+    char line[MAX_LINE_LENGTH+NULL_SIZE],*rest_line;/* To store new line evry time*/
     int ic=0,dc=0,ex_c=0,en_c=0;/*to count the num of instraction and data words and .extern or .entry respectively*/
     int line_num =0;/*lines counter*/
     char label[MAX_LINE_LENGTH];/*to contain the label evry line*/
-    int temp,i;
+    int temp;
     FILE *am_file;
     int command_type; /*will contain the opcode of the command or the enum value if its promote  */
     char first_word[MAX_LINE_LENGTH]; /*to read the first word after the label*/
@@ -129,12 +127,8 @@ void first_pass(char *am_name,head *head_node_mac)
     enters_line_num = malloc(START_SIZE *  sizeof(int));
     exters_line_num = malloc(START_SIZE *  sizeof(int));
     if (enters == NULL || exters == NULL || enters_line_num == NULL || enters_line_num == NULL)  {
-        printf("\nFailed to allocate memory");
+        printf("\nFailed to allocate memory\n");
         exit(1);
-    }
-    for (i = 0; i < START_SIZE; i++) {
-        *(enters[i]) = '\0';
-        *(exters[i]) = '\0';
     }
     label_head.head_of_list =NULL;
     if ((am_file=fopen(am_name,"r")) == NULL){
@@ -142,14 +136,14 @@ void first_pass(char *am_name,head *head_node_mac)
         return;
 		} 
     fseek(am_file, 0, SEEK_SET); 
-    while (fgets(line, MAX_LINE_LENGTH+1 ,am_file) ) /*reading new line */
+    while (fgets(line, MAX_LINE_LENGTH+NULL_SIZE, am_file) ) /*reading new line */
     {
         eror_node.line=line;
         new_label=NULL;
         *label = '\0';/*reset the label*/
         *first_word = '\0';/*reset the string*/
         line_num++;
-        if (line[strlen(line) - 1] != '\n' && !feof(am_file)){/*cheks if the size of the line is to big*/
+        if (line[strlen(line) - NULL_SIZE ] != '\n' && !feof(am_file)){/*cheks if the size of the line is to big*/
             eror(eror_node ,LINE_LENGTH);
             while (fgetc(am_file) != '\n' && !feof(am_file));/*Reach a new line*/
             } 
@@ -158,7 +152,7 @@ void first_pass(char *am_name,head *head_node_mac)
         {
             sscanf(line,"%s",label); 
             temp = strlen(label);
-            if( temp > 0 && label[temp-1] != ':' )/*if the first word of the line isnt a lable*/
+            if( temp > 0 && label[temp - NULL_SIZE ] != ':' )/*if the first word of the line isnt a lable*/
                 {
                     *label = '\0';/*reset the label*/
                     rest_line = line;
@@ -180,6 +174,13 @@ void first_pass(char *am_name,head *head_node_mac)
                 
                 temp = strlen(first_word);
                 rest_line = strstr(rest_line,first_word)+temp;/*now rest_line is the part of the arguments*/
+                if ( (ic+dc) > MAX_SIZE_MEMOREY )  /*cheking if we heave to many words*/
+                {
+                    eror(eror_node,OVER_SIZE);
+                    /*And so that there is no deviation from the size of the arrays*/
+                    ic=0;
+                    dc=0;
+                } 
                 if (command_type >= MOV && command_type <= STOP){/*the That is, it belongs to the opcode of a command*/
                 coms[ic].type_of_instraction = FIRST;
                 coms[ic].line_number = line_num;
@@ -191,14 +192,14 @@ void first_pass(char *am_name,head *head_node_mac)
                     case STRING:
                         if(*label != '\0'){/*if there is label*/
                             (new_label->adress) = dc;
-                            (new_label->flag_type)=PROMPTE;
+                            (new_label->flag_type)=DIRECTIVE;
                         }
                         add_string(eror_node,rest_line,&dc,&data);
                         break;
                     case DATA:
                         if(*label != '\0'){/*if there is label*/
                             (new_label->adress) = dc;
-                            (new_label->flag_type)=PROMPTE;
+                            (new_label->flag_type)=DIRECTIVE;
                         }
                         add_data(eror_node,rest_line,&dc,&data);
                         break;

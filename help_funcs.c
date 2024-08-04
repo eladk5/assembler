@@ -23,8 +23,7 @@ static void remove_blanks(char str[])
 This function verifies that a string of numbers separated by commas is correctly formatted using a state machine,
 which follows whether we are now expecting a number, a comma or within a number. and changes situations accordingly 
 It ensures numbers are properly separated by commas, handles misplaced commas, and removes extra spaces if the string is valid.
-Note: This function treats any character that is not white or a comma as a number
-
+Note: This function treats any character that is not white or a comma as a number(if its not number it will be handals later)
 Parameters:
 str: A pointer to the input string containing numbers separated by commas.
 Return Values:
@@ -39,34 +38,34 @@ int check_numbers_saperate(char *str){
     {
         switch (status)
         {
-        case  WAIT_NUM:/*Comma is not allowed until ew get to not blank*/
+        case  WAIT_NUM:/*Comma is not allowed until we get to not blank*/
             if( !isspace(*temp) ){
                 if((*temp) == ',')
-                    return COMMA;
+                    return COMMA;/*the string start with comma*/
                 else
                     status = IN_NUM;
             }
             break;
-        case IN_NUM:
+        case IN_NUM:/*number reading wait for space or comma*/
             if(isspace(*temp))
                 status = WAIT_COMMA;
             if(*temp == ',')
                 status = WAIT_NUM;
             break;
-        case WAIT_COMMA:
+        case WAIT_COMMA:/*after number wait for comma*/
             if(*temp == ',')
                 status = WAIT_NUM;
             else{
-                if(!isspace(*temp))
+                if(!isspace(*temp))/*if two numbers dont saperatte by comma*/
                     return MISS_COMMA;
             }
             break;
         }
         temp++;
     }
-    if (status == WAIT_NUM)/*the string ends with comma*/
+    if (status == WAIT_NUM)
     {
-        return COMMA;
+        return COMMA;/*the string ends with comma*/
     }
     remove_blanks(str);
     return T;
@@ -76,7 +75,7 @@ int check_numbers_saperate(char *str){
 This is done by removing the white characters and checking the length of the remaining string*/
 int chek_end_line(char * str)
 {
-	char temp[MAX_LINE_LENGTH];/* Temporary string to store the modified input */
+	char temp[MAX_LINE_LENGTH+NULL_SIZE];/* Temporary string to store the modified input */
 	strcpy(temp, str);
     remove_blanks(temp);
     if(strlen(temp)>0)
@@ -102,7 +101,7 @@ head_node: The head of the macro linked list.
 */
 void free_the_mac(head head_node)
 {
-    macro_node temp, next_temp;
+    macro_node temp, next_temp;/*temporary nodes*/
     if (head_node.head_of_list )
     {
         temp = head_node.head_of_list;
@@ -120,7 +119,7 @@ head_node: The head of the labels linked list.
 */
 void free_the_labels(head head_node)
 {
-    label_node temp, next_temp;
+    label_node temp, next_temp;/*temporary nodes*/
     if (head_node.head_of_list )
     {
         temp = head_node.head_of_list;
@@ -141,7 +140,7 @@ Returns: The macro node if the string is a macro name, otherwise NULL.
 */
 macro_node is_macro_name(char *str,head head_node)
 {
-    macro_node temp;
+    macro_node temp;/*temporary node*/
     temp = (head_node.head_of_list);
     while(temp){
         if( strcmp( (temp->name) , str ) == 0 ) 
@@ -150,10 +149,16 @@ macro_node is_macro_name(char *str,head head_node)
     }
     return NULL;
 }
-
+/* 
+Checks if a given string is the name of a defined label by going through the list of labels
+Parameters:
+str: The string to check.
+head_node: The head of the labels linked list.
+Returns: The macro node if the string is a macro name, otherwise NULL.
+*/
 label_node is_label_name(char *str,head head_node)
 {
-    label_node temp;
+    label_node temp;/*temporary node*/
     temp = (head_node.head_of_list);
     while(temp){
         if( strcmp( (temp->name) , str ) == 0 ) 
@@ -167,11 +172,8 @@ label_node is_label_name(char *str,head head_node)
 /*Converts a string representing a number into an integer, 
 handling optional leading '+' or '-' signs. 
 It uses strtol for conversion and checks for errors such as non-numeric characters or out-of-range values. 
-If an error is detected, it sets an error flag and returns 0.
 The function processes the string, skips an optional sign, converts the numeric part, and negates the result if necessary.
-
 Parameters:
-
 am_name: The name of the file being processed.
 line_num: The current line number in the file.
 eror_flag: Pointer to an integer flag used to indicate if an error occurred.
@@ -194,10 +196,26 @@ int get_num(erors_node eror_node, char *str)
 }
 
 /*change the extension of filename to new_ext */
-void change_extension(char *filename, const char *new_ext) {
-    char *dot = strrchr(filename, '.'); /* Find the last dot in the filename*/
+void change_extension(char *file_name, const char *new_ext) {
+    char *dot = strrchr(file_name, '.'); /* Find the last dot in the filename*/
     if (dot != NULL) {
         dot++;
         strcpy(dot, new_ext); /* Replace the extension*/
     }
+}
+/*cheks how many times the char c exixt in str
+parameters;
+str: the string to chek
+c: the char to look for*/
+int how_many_c(char *str, char c)
+{
+    char *temp = str;/*pointer*/
+    int count = 0;/*counter to char c*/
+    while (temp && *temp)
+    {
+        if(*temp == c)
+            count++;
+        temp++;
+    }
+    return count;
 }

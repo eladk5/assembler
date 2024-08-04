@@ -1,45 +1,99 @@
-#define IS_WITHIN_12_BITS(num) ((num) >= -2048 && (num) <= 2047)
-#define IS_WITHIN_15_BITS(num) ((num) >= -16384 && (num) <= 16383)
+#define FIRST_MEM 100/*the first usable place in memorey*/
+#define START_SIZE 50 /*the first size of dinamic arrey*/
+#define ONE_CHAR 1 /*size of one character*/
+#define CHAR_TO_NAM(A) ( (A)-'0' ) /*convert one digit char to number*/
+#define IS_WITHIN_12_BITS(num) ((num) >= -2048 && (num) <= 2047)/* if num fits in 12 bits */
+#define IS_WITHIN_15_BITS(num) ((num) >= -16384 && (num) <= 16383)/* if num fits in 15 bits */
 #define METHOD(A) ( 1 << A )
-#define FIRST_MEM 100
 
+#ifdef PRINT
+/*numbers of bits*/
+#define ONE_BIT 1 
+#define TWO_BITS 2
+#define THREE_BITS 3
+#define SIX_BITS 6
+#define SEVEN_BITS 7
+#define ELEVEN_BITS 11
+#define FULL_BIT_INSTRACTION (0x7FFF) /*in binary its 0111111111111111*/
+#endif
+/*flags for diffrent cases*/
+enum flags{
+    SOURCE,/*soursce operand*/
+    TARGET,/*target operand*/
+    INCTRACTION,/*inctractin line*/
+    DIRECTIVE/*directive line*/
+};
 
-/* Structure to hold command names and their corresponding opcodes */
+/* Structure to hold command names and their allowed methods */
 typedef struct {
-    char name[MAX_LABEL_LENGTH];
+    char name[MAX_LABEL_LENGTH];/*command name*/
     int method_allowed[MAX_OPERAND][NUM_OF_METODS];/*Each place in the array represents an addressing method 
     for a particular operand in the command, and says whether it is allowed or not to use it*/
 } Cmd;
-#ifdef FIRST_PASS
-Cmd cmd[]={/*Each command here is placed in the place of its opcode in the array */
-        {"mov", { {T,T,T,T}, {F,T,T,T} } },
-        {"cmp", { {T,T,T,T}, {T,T,T,T} } },
-        {"add", { {T,T,T,T}, {F,T,T,T} } },
-        {"sub", { {T,T,T,T}, {F,T,T,T} } },
-        {"lea", { {F,T,F,F}, {F,T,T,T} } },
-        {"clr", { {F,F,F,F}, {F,T,T,T} } },
-        {"not", { {F,F,F,F}, {F,T,T,T} } },
-        {"inc", { {F,F,F,F}, {F,T,T,T} } },
-        {"dec", { {F,F,F,F}, {F,T,T,T} } },
-        {"jmp", { {F,F,F,F}, {F,T,T,F} } },
-        {"bne", { {F,F,F,F}, {F,T,T,F} } },
-        {"red", { {F,F,F,F}, {F,T,T,T} } },
-        {"prn", { {F,F,F,F}, {T,T,T,T} } },
-        {"jsr", { {F,F,F,F}, {F,T,T,F} } },
-        {"rts", { {F,F,F,F}, {F,F,F,F} } },
-        {"stop",{ {F,F,F,F}, {F,F,F,F} } },
-        {".entry",  {{F}, {F}}},
-        {".extern", {{F}, {F}}},
-        {".data",   {{F}, {F}}},
-        {".string", {{F}, {F}}}  
-   };
-   void free_the_labels(head head_node);
-#endif
+
+/*Contains the appropriate command word according to each type of the word*/
+union Instruction {
+    struct {
+        unsigned int e_r: 2;/*will be 0 because its the first command*/
+        unsigned int a: 1;/*will be 1 because its the first command*/
+        unsigned int target_method: 4;/*The addressing method of the target operand*/
+        unsigned int source_method: 4;/*The addressing method of the source operand*/
+        unsigned int opcode: 4;/*opcode*/
+    } first_command;/*the first word in command*/
+
+    struct {
+        unsigned int e_r: 2;/*will be 0 because its the number command*/
+        unsigned int a: 1;/*will be 1 because its the number command*/
+        int value: 12;/*not unsigned beacuse the value can be negative*/
+    } number_word;/*the word for number method*/
+
+    struct {
+        unsigned int e: 1;/*e fild*/
+        unsigned int r: 1;/*r fild*/
+        unsigned int a: 1;/*will be 0 because its the label command*/
+        unsigned int adress: 12;/*adress if it's local otherwize 0*/
+    } label_word;/*the word for label method*/
+    struct {
+        unsigned int e_r: 2;/*will be 0 because its the register command*/
+        unsigned int a: 1;/*will be 1 because its the register command*/
+        unsigned int target_operand: 3;/*The register number of the destination operand*/
+        unsigned int source_operand: 3;/*The register number of the source operand*/
+        unsigned int reserved: 6;/*not in use*/
+    } register_word;/*the word for register method*/
+};
+typedef union Instruction instruction;
+
+enum method{/*flags for each type of method*/
+    NUMBER,/*for numbers instraction*/
+    LABEL,/*for label instraction*/
+    P_REGISTER,/*for register pointer*/
+    D_REGISTER,/*for direct register*/
+    FIRST/*for first instraction in command*/
+};
+/* Structure for evry inctraction word*/
+struct Command
+{
+        int line_number;/*the line number of the command*/
+        int type_of_instraction;/*first command, namber,label or register (from enum instraction_type)*/
+        char label_name[MAX_LINE_LENGTH];/*only for label commands, will contain the label*/
+        instruction ins;/*the struct of instruction*/
+};
+typedef struct Command command;
+/*struct for label node in list*/
+struct Label{
+    char name[MAX_LABEL_LENGTH+ONE_CHAR];/*the label name*/
+    int flag_type; /*dirctive or inctraction*/
+    int adress;/*the adress of tje label*/
+    int is_entry;/*T if he was daclared as entry otherwize F*/
+    struct Label *next;
+};
+typedef struct Label *label_node;
+
 #ifdef NOT_FIRST
-extern Cmd cmd[];
+extern Cmd cmd[];/*An array in which each command is in its opcode (and at the end there are also the diractive)*/
 #endif
 
-enum {
+enum { /*for each command it's opcode*/
     MOV,
     CMP,
     ADD,
@@ -61,124 +115,64 @@ enum {
     DATA,
     STRING 
 };
-union Instruction {
-    struct {
-        unsigned int e_r: 2;/*will be 0 because its the first command*/
-        unsigned int a: 1;/*will be 1 because its the first command*/
-        unsigned int target_method: 4;
-        unsigned int source_method: 4;
-        unsigned int opcode: 4;
-    } first_command;
-
-    struct {
-        unsigned int e: 1;
-        unsigned int r: 1;
-        unsigned int a: 1;
-        int value: 12;/*not unsigned beacuse the value can be negative*/
-    } number_word;
-
-    struct {
-        unsigned int e: 1;
-        unsigned int r: 1;
-        unsigned int a: 1;
-        unsigned int adress: 12;
-    } label_word;
-    struct {
-        unsigned int e: 1;
-        unsigned int r: 1;
-        unsigned int a: 1;
-        unsigned int target_operand: 3;
-        unsigned int source_operand: 3;
-        unsigned int reserved: 6;/*not in use*/
-    } register_word;
-};
-typedef union Instruction instruction;
-enum method{
-    
-    NUMBER,/*for numbers instraction*/
-    LABEL,/*for label instraction*/
-    P_REGISTER,/*for register pointer*/
-    D_REGISTER,/*for direct register*/
-    FIRST/*for first instraction in command*/
-};
-struct Command
-{
-        int line_number;
-        int type_of_instraction;/*first command, namber,label or register (from enum instraction_type)*/
-        char label_name[MAX_LINE_LENGTH];/*only for label commands, will contain the label*/
-        instruction ins;/*the struct of instruction*/
-};
-typedef struct Command command;
-
-struct Label{
-    char name[MAX_LABEL_LENGTH+1];/*1 for the null*/
-    int flag_type; /*promote or inctraction*/
-    int adress;
-    int is_entry;/*1 if he was daclared as entry otherwize 0*/
-    struct Label *next;
-};
-typedef struct Label *label_node;
-/* This function processes a line of assembly code with a single operand, reads the operand, verifies its method,
-    and updates the instruction structure. It checks for errors such as missing or invalid operands, ensures the memory
-    is not full, and verifies there are no extra characters at the end of the line.
-    Parameters:
-    eror_node: The information required to read the error such as a pointer to an error flag, line number, etc.
-    command_type: The type of the command.
-    rest_line: The rest of the line containing the operand.
-    ic: Pointer to the instruction counter.
-    coms: Pointer to the command array.
-*/
-void one_operand(erors_node eror_node, int command_type,char *rest_line,int *ic,command (*coms)[MAX_SIZE_MEMOREY] );
-/*  This function processes a line of assembly code with two operands, reads the operands, verifies their methods,
-    and updates the instruction structure. It checks for errors such as missing or invalid operands, ensures the memory
-    is not full, and verifies there are no extra characters at the end of the line.
-    Parameters:
-    eror_node: The information required to read the error such as a pointer to an error flag, line number, etc.
-    command_type: The type of the command.
-    rest_line: The rest of the line containing the operands.
-    ic: Pointer to the instruction counter.
-    coms: Pointer to the command array.
-*/
-void two_operands(erors_node eror_node, int command_type,char *rest_line,int *ic,command (*coms)[MAX_SIZE_MEMOREY] );
-/*This function processes a line of entry or extern. The function adds the label name to the appropriate array, 
-and allocates more memory to the array if necessary. 
-In case of a lack of a parameter or unnecessary characters, an error is reported and marked accordingly.
-
+/* 
+Checks if a given string is the name of a defined label by going through the list of labels
 Parameters:
-eror_node: The information required to read the error such as a pointer to an error flag, line number, etc.
-rest_line: The portion of the line containing the name to be processed.
-counter: Pointer to an integer that keeps track of the number of names added to the array.
-names_arrey: Pointer to the dynamic array of strings where the names will be stored.
-size: Pointer to an integer representing the current size of the dynamic array.*/
-void add_ext_en(erors_node eror_node,char *rest_line,int *counter ,char (**names_arrey)[MAX_LINE_LENGTH],int *size,int **name_line_num);
-
-/*This function processes a line of assembly code to add numerical data to the data array,
-ensuring the input format is correct. It first checks if the commas in the input string are correctly placed,
-then tokenizes the string based on commas, converts each token to a number using get_num, 
-and adds each number to the data array. If an error is detected, it sets an error flag and returns.
-
-Parameters:
-eror_node: The information required to read the error such as a pointer to an error flag, line number, etc.
-rest_line: The portion of the line containing the data to be processed.
-dc: Pointer to the data counter, which tracks the current position in the data array.
-data: Pointer to the data array where the numerical data will be stored.*/
-void add_data(erors_node eror_node,char *rest,int *dc,short (*data)[]);
-/*Processes the argument part of ".string" promote. The function counts with the help of how_many_c the amount of qoutes.
- And so while going over the line,
-it checks that all the characters are between the first and the last " and enters them into data.
-Parameters:
-eror_node: The information required to read the error such as a pointer to an error flag, line number, etc.
-rest_line: The portion of the line containing the string to be processed.
-dc: Pointer to the data counter, which tracks the current position in the data array.
-data: Pointer to the data array where the string will be stored.
+str: The string to check.
+head_node: The head of the labels linked list.
+Returns: The macro node if the string is a macro name, otherwise NULL.
 */
-void add_string(erors_node eror_node, char *rest_line,int *dc,short (*data)[]);
+label_node is_label_name(char *str,head head_node);
+/*Handles some of label associated errors by printing the appropriate error, as well as changing the eror flag.
+parameters:
+file_name: The name of the file where the error occurred
+eror_flag: pointer to eror flag
+line_num: the number of the line where the error occurred
+eror_num: the type of the eror from the enum erors  
+*/
+void eror_label(char *file_name, int *eror_flag, int line_num, int eror_num);
+
+#ifdef SECOND_PASS /*only for second_pass file*/
 /*
-This function verifies that a string of numbers separated by commas is correctly formatted.
-It ensures numbers are properly separated by commas, handles misplaced commas, and removes extra spaces if the string is valid.
-(A misplaced comma is one that appears at the beginning, at the end, or if there are two or more consecutive commas.)
-Note: This function treats any character that is not white or a comma as a number
+The function generates the object file from the commands and data sections with ob extension.
+The object code is printed in octal format along with its memory address.
 
+Parameters:
+file_name: The name of the origin file.
+coms: The array of commands.
+ic: The instruction counter.
+data: The array of data.
+dc: The data counter.
+Returns:T if the operation is successful, F otherwise.
+*/
+int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short (*data)[MAX_SIZE_MEMOREY] ,int dc );
+/*
+The function writes the entry labels and their addresses to a file with ent extension.
+
+Parameters:
+file_name: The name of the origin file.
+labels: The head of the label list.
+Returns:T if the operation is successful, F otherwise.
+*/
+int ent_print(char *file_name, head labels );
+/*
+The function writes the external labels and the addresses of lines thats use them to  file whith ext extensions.
+
+Parameters:
+file_name: The name of the origin file.
+coms: The array of commands.
+ic: The instruction counter.
+Returns:T if the operation is successful, F otherwise.
+*/
+int ext_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic);
+#endif
+#ifdef STRING_TO_DATA /*for string_to_data_file*/
+#define DOUBLE 2 /*double size*/
+#define MIN_QUOTES 2 /*the minimum amount of qoutse in string */
+/*
+This function verifies that a string of numbers separated by commas is correctly formatted 
+It ensures numbers are properly separated by commas and removes extra spaces if the string is valid.
+Note: This function treats any character that is not white or a comma as a number(if its not number it will be handals later)
 Parameters:
 str: A pointer to the input string containing numbers separated by commas.
 Return Values:
@@ -186,6 +180,7 @@ COMMA (19): Misplaced or consecutive commas without numbers in between.
 MISS_COMMA (21): Missing comma between numbers.
 T (1): The string is valid and properly formatted.*/
 int check_numbers_saperate(char *str);
+
 /*The get_num function converts a string representing a number into an integer. 
 It handles optional leading '+' or '-' signs and sets an error flag if the string contains non-numeric characters.
 Parameters:
@@ -197,10 +192,11 @@ str: The string to be converted to an integer.
 return: The number read from the string. (If there is an error, junk is returned)*/
 int get_num(erors_node eror_node,char *str);
 
+/*cheks how many times the char c exixt in str
+parameters;
+str: the string to chek
+c: the char to look for
+retuens: the times that char c exixt in str*/
+int how_many_c(char *str, char c);
+#endif
 
-
-label_node is_label_name(char *str,head head_node);
-void eror_label(char *file_name, int *eror_flag, int line_num, int eror_num);
-int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short (*data)[MAX_SIZE_MEMOREY] ,int dc );
-int ent_print(char *file_name, head labels );
-int ext_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic);

@@ -1,5 +1,7 @@
 #include "all.h"
+#define PRINT
 #include "passes.h"
+
 void print_short_binary(short number) {
     int bits = sizeof(short) * 8; 
     int i;
@@ -15,6 +17,18 @@ void print_short_binary(short number) {
     }
     printf("\n");
 }
+/*
+The function generates the object file from the commands and data sections with ob extension.
+The object code is printed to file in octal format along with its memory address.
+
+Parameters:
+file_name: The name of the origin file.
+coms: The array of commands.
+ic: The instruction counter.
+data: The array of data.
+dc: The data counter.
+Returns:T if the operation is successful, F otherwise.
+*/
 
 int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short (*data)[MAX_SIZE_MEMOREY] ,int dc )
 {
@@ -27,7 +41,7 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
  		fprintf(stderr, "Error opening file: %s\n",file_name);/* the file dont open */
         return F;
 		}
-    fprintf(ob_file, "\t%d %d\n",ic,dc);
+    fprintf(ob_file, " %d %d\n",ic,dc);
     for(i=0; i<ic ; i++ ,memorey++){
         temp =0;
         switch ((*coms)[i].type_of_instraction)
@@ -35,46 +49,53 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
         case FIRST:
             printf("first command in line:%d a:%d source: %d",(*coms)[i].line_number,(*coms)[i].ins.first_command.a,(*coms)[i].ins.first_command.source_method);
             printf("target:%d opc:%d\n",(*coms)[i].ins.first_command.target_method,(*coms)[i].ins.first_command.opcode);
-            temp |=  (*coms)[i].ins.first_command.a << 2;
-            temp |=  (*coms)[i].ins.first_command.target_method << 3;
-            temp |=  (*coms)[i].ins.first_command.source_method << 7;
-            temp |=  (*coms)[i].ins.first_command.opcode << 11;
+            temp |=  (*coms)[i].ins.first_command.a << TWO_BITS;
+            temp |=  (*coms)[i].ins.first_command.target_method << THREE_BITS;
+            temp |=  (*coms)[i].ins.first_command.source_method << SEVEN_BITS;
+            temp |=  (*coms)[i].ins.first_command.opcode << ELEVEN_BITS;
             break;
         case NUMBER:
             printf("num command in line:%d a:%d value: %d\n",(*coms)[i].line_number,(*coms)[i].ins.number_word.a,(*coms)[i].ins.number_word.value);
-            temp |=  (*coms)[i].ins.number_word.a << 2;
-            temp |=  (*coms)[i].ins.number_word.value << 3;
+            temp |=  (*coms)[i].ins.number_word.a << TWO_BITS;
+            temp |=  (*coms)[i].ins.number_word.value << THREE_BITS;
             break;
         case LABEL:
             printf("label in line:%d e:%d r: %d adress: %d\n",(*coms)[i].line_number,(*coms)[i].ins.label_word.e,(*coms)[i].ins.label_word.r,(*coms)[i].ins.label_word.adress);
             temp |=  (*coms)[i].ins.label_word.e;
-            temp |=  (*coms)[i].ins.label_word.r << 1;
-            temp |=  (*coms)[i].ins.label_word.adress << 3;
+            temp |=  (*coms)[i].ins.label_word.r << ONE_BIT;
+            temp |=  (*coms)[i].ins.label_word.adress << THREE_BITS;
             break;
         case P_REGISTER:
         case D_REGISTER:
             printf("register in line:%d a:%d source:%d ",(*coms)[i].line_number,(*coms)[i].ins.register_word.a,(*coms)[i].ins.register_word.source_operand);
             printf("target:%d\n",(*coms)[i].ins.register_word.target_operand);
-            temp |=  (*coms)[i].ins.register_word.a << 2;
-            temp |=  (*coms)[i].ins.register_word.target_operand << 3;
-            temp |=  (*coms)[i].ins.register_word.source_operand << 6;
+            temp |=  (*coms)[i].ins.register_word.a << TWO_BITS;
+            temp |=  (*coms)[i].ins.register_word.target_operand << THREE_BITS;
+            temp |=  (*coms)[i].ins.register_word.source_operand << SIX_BITS;
             break;
         default:
             break;
         }
-        print_short_binary((unsigned short)temp & 0x7FFF);
-        fprintf(ob_file,"%05d %05o\n",memorey, (unsigned short)temp & 0x7FFF);
+        print_short_binary((unsigned short)temp & FULL_BIT_INSTRACTION);
+        fprintf(ob_file,"%05d %05o\n",memorey, (unsigned short)temp & FULL_BIT_INSTRACTION);
     }
     for(i=0; i < dc ; i++ ,memorey++)
     {
         printf("data adress:%d data:%d \n",memorey, (*data)[i]);
-        print_short_binary((unsigned short)(*data)[i] & 0x7FFF);
-        fprintf(ob_file,"%05d %05o\n",memorey,(unsigned short)(*data)[i] & 0x7FFF);
+        print_short_binary((unsigned short)(*data)[i] & FULL_BIT_INSTRACTION);
+        fprintf(ob_file,"%05d %05o\n",memorey,(unsigned short)(*data)[i] & FULL_BIT_INSTRACTION);
     }
     return T;
     fclose(ob_file);
 }
-
+/*
+The function writes the entry labels and their addresses to a file with ent extension.
+It iterates over the list of labels and writes the ones marked as entries to the file.
+Parameters:
+file_name: The name of the origin file.
+labels: The head of the label list.
+Returns:T if the operation is successful, F otherwise.
+*/
 int ent_print(char *file_name, head labels )
 {
     label_node temp;
@@ -98,7 +119,15 @@ int ent_print(char *file_name, head labels )
     fclose(ent_file);
     return T;
 }
-
+/*
+The function iterates over the list of commands and writes the external labels and the addresses of lines thats 
+use them, to file whith ext extensions.
+Parameters:
+file_name: The name of the origin file.
+coms: The array of commands.
+ic: The instruction counter.
+Returns:T if the operation is successful, F otherwise.
+*/
 int ext_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic)
 {
     FILE *ext_file;

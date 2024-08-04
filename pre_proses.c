@@ -14,12 +14,10 @@ macr: The macro node containing the macro to expand.
 */
 static void macro_call(FILE *as_file, FILE *am_file, macro_node macr )
 {
-    char line[MAX_LINE_LENGTH], temp[MAX_LABEL_LENGTH];
-    int line_num =  (macr -> line_number); 
-    fseek(as_file,( macr -> offset) , SEEK_SET);
-    while (fgets(line, MAX_LINE_LENGTH, as_file) ){
-        line_num++;
-        if(sscanf(line,"%s",temp) && strcmp(temp,"endmacr") == 0){
+    char line[MAX_LINE_LENGTH+NULL_SIZE]/*to store the lines*/, temp[MAX_LABEL_LENGTH]/*temporary string*/;
+    fseek(as_file,( macr -> offset) , SEEK_SET);/*reach the place in the file of the macro contant*/
+    while (fgets(line, MAX_LINE_LENGTH, as_file) ){/*read line*/
+        if(sscanf(line,"%s",temp) && strcmp(temp,"endmacr") == 0){/*checks if we end the macro*/
             return; 
         }
         fprintf(am_file,"%s",line);    
@@ -33,15 +31,13 @@ Parameters:
 as_file: The input as file.
 name: The name of the macro.
 head_node: Pointer to the head of the macro linked list.
-flag: Pointer to an integer flag to indicate an error occurred.
-line_num: The line number where the macro is defined.
-line: The line where the macro is defined.
+eror_node: The information required to read the error such as a pointer to an error flag, line number, etc.
 */
 static void read_macr(FILE *as_file, char *name, head *head_node,erors_node eror_node)
 {
-    macro_node temp;/*the node of the new macro*/
-    macro_node new_node; 
-    if(!isalpha(*name)){/*Cheks if the first latter is latter*/
+    macro_node temp;/*temporary*/
+    macro_node new_node; /*the node of the new macro*/
+    if(!isalpha(*name)){/*Cheks if the first char is latter*/
         eror(eror_node, MAC_START);
         return;
     }
@@ -51,17 +47,17 @@ static void read_macr(FILE *as_file, char *name, head *head_node,erors_node eror
          return;
     }
     new_node = (macro_node)malloc(sizeof(struct MacroNode));
-    if (new_node == NULL) {/*memory alucation fail */
-        fprintf(stderr,"Failed to allocate memory/n");
+    if (new_node == NULL) {
+        fprintf(stderr,"Failed to allocate memory\n");/*memory alucation fail */
         fclose(as_file);
         free_the_mac(*head_node);
         exit(1);
     }
+    /*update the node*/
     strcpy(new_node->name, name);
     new_node->offset = ftell(as_file);
     new_node->next = NULL;
     new_node-> line_number = *eror_node.line_num;
-    
     if ((head_node->head_of_list) == NULL )/*if its the first macro*/
     {
         (head_node->head_of_list) = new_node;
@@ -71,12 +67,12 @@ static void read_macr(FILE *as_file, char *name, head *head_node,erors_node eror
     while(temp){/*Going through the list of macros, if the new macro name is already found, an error is reported.
      If not, adds the new node to the end of the list*/
         if( strcmp( (temp->name) , name ) == 0 ){  
-            eror(eror_node,MAC_NAME_AGAIN);
+            eror(eror_node,MAC_NAME_AGAIN);/*the name taken*/
             free(new_node);
             return;
         }
         if (temp->next == NULL){
-            temp->next = new_node ;
+            temp->next = new_node ;/*add the new node to the end of the list*/
             return;
         }
         temp = temp -> next;
@@ -90,11 +86,9 @@ Depending on the current state, it identifies macro definitions (macr) and expan
 When a macro definition is detected, it reads and stores the macro. When a macro call is found, it expands the macro by writing its content to the output file. 
 The function manages errors such as undefined macros, extra characters, and unclosed macros, and updates the state accordingly. 
 Finally, if no errors were found during the preassembler send to the first pass of the assemly. 
-else free the aloctar memory for the macro list.
 Parameters:
 as_file: The input assembly file.
 file_name: The name of the input file.
-Returns: T if no errors were found during the preassembler, otherwise F.
 */
 void pre_pros(FILE *as_file, char *file_name)
 {
@@ -105,14 +99,13 @@ void pre_pros(FILE *as_file, char *file_name)
     char first_word[MAX_LINE_LENGTH],second_word[MAX_LINE_LENGTH]; /* First and second word in the current line */
     char *rest; /*For the remaining part of the line after the first two words */
     int flag = T; /* flag to indicate if no errors were found*/
-    char line[MAX_LINE_LENGTH];/* To store new line evry time */
+    char line[MAX_LINE_LENGTH+NULL_SIZE];/* To store new line evry time */
     FILE *am_file; /* Output file with .am extension */
     int line_number = 0;/* Counter for line numbers */
     int temp,temp_buffer; /* Temporary variables*/
     char *new_file_name;/* To store the name of the current file whith .am ending */
     
-
-
+    /*update the eror node and labels list*/
     erors_node eror_node;
     eror_node.file_name= file_name;
     eror_node.flag = &flag;
@@ -120,13 +113,13 @@ void pre_pros(FILE *as_file, char *file_name)
     (head_node->head_of_list) = NULL;
     new_file_name = malloc(strlen(file_name)+MAX_SIZE_ENDINDG);
     if (new_file_name == NULL) {
-			fprintf(stderr,"\nFailed to allocate memory");
+			fprintf(stderr,"\nFailed to allocate memory\n");/*memorey allocatin fails*/
 			exit(1);
 		}
     strcpy(new_file_name,file_name);
     change_extension(new_file_name,"am"); /* Change the extension to .am */
     if ((am_file=fopen(new_file_name,"w")) == NULL){
- 		fprintf(stderr, "Error opening file: %s\n",new_file_name);/* the file dont open */
+ 		fprintf(stderr, "Error opening file: %s\n",new_file_name);/* the file didnt open */
         return;
 		} 
     while (fgets(line, MAX_LINE_LENGTH ,as_file) ) {/*reading new line*/
@@ -139,7 +132,8 @@ void pre_pros(FILE *as_file, char *file_name)
         case NOT_MACRO:/*The normal state in which a macro is not read or called*/
             if ( (temp = sscanf(line, "%s%s", first_word, second_word)) ){
                 if ( (strcmp(first_word, "macr") )== 0){/*Is a macro statement*/
-                    if  ( temp>1 && strlen(second_word) <= MAX_LABEL_LENGTH) {
+                    if  ( temp > ONE_SCAN && strlen(second_word) <= MAX_LABEL_LENGTH) {
+                        /*If 2 words were read and the label name is the correct size*/
                         rest= strstr(line, first_word) + strlen(first_word);
                         rest= strstr(rest, second_word) + strlen(second_word);
                         if ( chek_end_line(rest) ){
@@ -150,16 +144,15 @@ void pre_pros(FILE *as_file, char *file_name)
                         else/* extra chars case*/
                             eror( eror_node,EXTEA_CHARS );  
                     }
-                 
                     else{ /*else to ( temp>1 && strlen(second_word) <= MAX_LABEL_LENGTH)*/
-                        if(temp == 1)/*there is no macro name*/
+                        if(temp == ONE_SCAN)/*there is no macro name*/
                             eror( eror_node,NO_MAC_NAME );
                         else/*the name of the macro is to long*/
                             eror( eror_node,MAC_NAME_LONG );
                     }
                 }
                 if((temp_node = is_macro_name(first_word, *head_node))){/*if the line calls out to macro*/
-                    if (temp > 1)/* extra chars case*/
+                    if (temp > ONE_SCAN)/* extra chars case*/
                         eror(eror_node, EXTEA_CHARS );
                     else{
                         /*Saves the current location in the file and calls a function that will copy the contents of the macro*/
@@ -175,7 +168,7 @@ void pre_pros(FILE *as_file, char *file_name)
                 fprintf(am_file, "%s", line); 
             if(state == MACRO_CALL)   
             {
-                state = NOT_MACRO;
+                state = NOT_MACRO;/*Because we have already written the macro content to the file*/
             }   
             break;
             
@@ -193,11 +186,12 @@ void pre_pros(FILE *as_file, char *file_name)
             }
     
     }
-    if(state == MACRO_READ)/*If we finished the file when there is a macro that never closed*/
-        eror(eror_node,MACRO_NOT_CLOSE);
     fclose(am_file);
     if(flag)
+        /*If everything went well until now, an am file has been created and can be sent for the first pass*/
 		first_pass(new_file_name,head_node);
+    else
+        remove(new_file_name);
     free(new_file_name);
     free_the_mac(head_node_macro);  
 }

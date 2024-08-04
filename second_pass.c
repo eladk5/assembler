@@ -1,6 +1,17 @@
 #include "all.h"
+#define SECOND_PASS
 #include "passes.h"
+/*
+The function checks if a label is declared as extern.
+It iterates over the list of externs and compares each with the given label name.
 
+Parameters:
+exters: The array of extern labels.
+ex_c: The count of extern labels.
+name: The name of the label to check.
+
+Returns:T if the label is found in the extern list, F otherwise.
+*/
 static int check_if_extern(char (**exters)[MAX_LINE_LENGTH] ,int ex_c, char *name)
 {
     int i;
@@ -13,6 +24,22 @@ static int check_if_extern(char (**exters)[MAX_LINE_LENGTH] ,int ex_c, char *nam
     return F;
 }
 
+/*
+The function performs the second pass of the assembly process.
+It updates all label references in the command list and checks for undefined labels.
+It then prints if needed the object code, entry labels, and extern labels to their respective files.
+
+Parameters:
+erors_node - The error handling structure.
+coms - The array of commands.
+ic - The instruction counter.
+data - The array of data.
+dc - The data counter.
+exters - The array of extern labels.
+ex_c - The count of extern labels.
+labels - The head of the label list.
+en_c - The count of entry labels.
+*/
 void second_pass(erors_node erors_node,command (*coms)[MAX_SIZE_MEMOREY] , int ic, short (*data)[MAX_SIZE_MEMOREY], int dc  ,char (**exters)[],int ex_c,head *labels,int en_c)
 {
     char *new_file_name;
@@ -47,7 +74,6 @@ void second_pass(erors_node erors_node,command (*coms)[MAX_SIZE_MEMOREY] , int i
 			exit(1);
 		}
         sprintf(new_file_name, "%s", erors_node.file_name);
-        new_file_name[len-2]= '\0';/*remove the am ending*/
         if ( (*erors_node.flag = ob_print(new_file_name,coms,ic,data,dc)) ){
             if(en_c)
                 if (!(*erors_node.flag = ent_print(new_file_name,*labels)) ){
