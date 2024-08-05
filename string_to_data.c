@@ -1,5 +1,4 @@
 #include "all.h"
-#define NOT_FIRST
 #define STRING_TO_DATA
 #include "passes.h"
 

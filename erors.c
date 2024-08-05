@@ -1,16 +1,9 @@
 #include "all.h"
 
-
-/* 
-Handles and prints error messages based on the error number.
-by setting the flag to F to indicate that an error has occurred. Prints the file name, line number, and content of the line where the error occurred.
-And based on the error number, prints the appropriate error message.
-Parameters:
-file_name: The name of the file where the error occurred.
-line_num: The line number where the error occurred.
-flag: Pointer to an integer flag to indicate an error occurred.
-line: The line where the error occurred.
-eror_num: The error number indicating the type of error.
+/*Handles various cases of errors by printing the appropriate error, as well as changing the flag.
+parameters:
+eror_node: the information we need to handle an error.
+eror_num: the type of the eror from the enum erors  
 */
 void eror(erors_node eror_node,int eror_num){
     *eror_node.flag = F;
@@ -36,7 +29,7 @@ void eror(erors_node eror_node,int eror_num){
         printf("There is a macro declaration without a macro name\n");
         break;
     case OVER_SIZE:
-        printf("You wrote too many commands, the computer doesn't have enough space for it.\nRemember, there is a maximum of 3096 words\n");
+        printf("You wrote too many commands, the computer doesn't have enough space for it.\nRemember, there is a maximum of 3996 words\n");
         break;
     case ONLY_LABEL:
         printf("In this line only a label appears, after a label there must come a prompt or instruction line\n");
@@ -92,6 +85,13 @@ void eror(erors_node eror_node,int eror_num){
     }
     printf("-------------------------------------------------------\n");
 }
+/*Handles some of label associated errors by printing the appropriate error, as well as changing the eror flag.
+parameters:
+file_name: The name of the file where the error occurred
+eror_flag: pointer to eror flag
+line_num: the number of the line where the error occurred
+eror_num: the type of the eror from the enum erors  
+*/
 void eror_label(char *file_name, int *eror_flag, int line_num, int eror_num)
 {
     *eror_flag = F;

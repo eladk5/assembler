@@ -1,6 +1,8 @@
 #include "assembler.h"
 
-/*This program converts assembly code files, received from the user as explained in the course booklet.
+/*the work of Elad Karo
+
+This program converts assembly code files, received from the user as explained in the course booklet.
 The program expands the macros, in the pre_proses.c file, If no errors are detected at this stage, 
 proceed to an initial analysis of the code that is carried out in the file first_pass.
 After that we will update the label addresses and we can check if all the labels we received as arguments

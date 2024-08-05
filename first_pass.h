@@ -1,26 +1,4 @@
 
-Cmd cmd[]={/*Each command here is placed in the place of its opcode in the array */
-        {"mov", { {T,T,T,T}, {F,T,T,T} } },
-        {"cmp", { {T,T,T,T}, {T,T,T,T} } },
-        {"add", { {T,T,T,T}, {F,T,T,T} } },
-        {"sub", { {T,T,T,T}, {F,T,T,T} } },
-        {"lea", { {F,T,F,F}, {F,T,T,T} } },
-        {"clr", { {F,F,F,F}, {F,T,T,T} } },
-        {"not", { {F,F,F,F}, {F,T,T,T} } },
-        {"inc", { {F,F,F,F}, {F,T,T,T} } },
-        {"dec", { {F,F,F,F}, {F,T,T,T} } },
-        {"jmp", { {F,F,F,F}, {F,T,T,F} } },
-        {"bne", { {F,F,F,F}, {F,T,T,F} } },
-        {"red", { {F,F,F,F}, {F,T,T,T} } },
-        {"prn", { {F,F,F,F}, {T,T,T,T} } },
-        {"jsr", { {F,F,F,F}, {F,T,T,F} } },
-        {"rts", { {F,F,F,F}, {F,F,F,F} } },
-        {"stop",{ {F,F,F,F}, {F,F,F,F} } },
-        {".entry",  {{F}, {F}}},
-        {".extern", {{F}, {F}}},
-        {".data",   {{F}, {F}}},
-        {".string", {{F}, {F}}}  
-   };
    /* This function processes a line of assembly code with a single operand, reads the operand, verifies its method,
     and updates the instruction structure. It checks for errors such as missing or invalid operands, ensures the memory
     is not full, and verifies there are no extra characters at the end of the line.

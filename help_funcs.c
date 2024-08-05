@@ -1,5 +1,5 @@
 #include "all.h"
-#define NOT_FIRST
+#define HELP_FUNCS
 #include "passes.h"
 
 

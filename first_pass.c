@@ -2,33 +2,64 @@
 #include "passes.h"
 #include "first_pass.h"
 
+/*
+This function checks if the entry labels are defined in the label list.
+It iterates over the entry labels, verifies their existence in the label list, and marks them as entries.
+
+Parameters:
+eror_node - The error handling structure.
+enters - The array of entry labels.
+enters_line_num - The array of line numbers where the entry labels are defined.
+en_c - The count of entry labels.
+labels - The head of the label list.
+*/
 static void check_entey(erors_node eror_node, char (**enters)[MAX_LINE_LENGTH],int **enters_line_num, int en_c,head *labels)
 {
     int i;
-    label_node temp;
+    label_node temp; /* Temporary variable for label node */
     for(i=0; i<en_c ; i++){
         temp = is_label_name((*enters)[i],*labels);
         if(temp)
-            (temp->is_entry) = T;
+            (temp->is_entry) = T;/* Mark label as entry */
         else
-            eror_label(eror_node.file_name,eror_node.flag,(*enters_line_num)[i],ENTRY_NOT_EXIXT);
+            eror_label(eror_node.file_name,eror_node.flag,(*enters_line_num)[i],ENTRY_NOT_EXIXT); /* Report error if label not found */
     }
 }
+/*
+This function checks if the extern labels are defined as regular labels in the label list.
+It iterates over the extern labels and reports an error if any extern label is found as a regular label.
 
+Parameters:
+eror_node - The error handling structure.
+exters - The array of extern labels.
+exters_line_num - The array of line numbers where the extern labels are defined.
+ex_c - The count of extern labels.
+labels - The head of the label list.*/
 static void check_extern(erors_node eror_node, char (**exters)[MAX_LINE_LENGTH],int **exters_line_num, int ex_c,head *labels)
 {
     int i;
     for(i=0; i<ex_c ; i++){
         if(is_label_name((*exters)[i],*labels))
+            /* Report error if extern label is found as a regular label */
             eror_label(eror_node.file_name,eror_node.flag,(*exters_line_num)[i],EXTERN_IS_LABEL);
     }
 
 }
-/*Assumption: a label that comes here is not NULL and ends in ':'*/
-static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,head *head_label,FILE *am_file)
+/*
+This function checks if a label is valid according to the rules.
+These rules include length, character types, and uniqueness.
+If the label is valid, it is added to the list of labels, Otherwise the error is handled accordingly.
+Parameters:
+eror_node - The structure used for error handling.
+label - The label to check.
+head_mac - The head of the macro list.
+head_label - The head of the label list.
+Returns: A pointer to the new label node if the label is valid, NULL otherwise.
+Assumption: a label that comes here is not NULL and ends with ':'*/
+static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,head *head_label)
 {
     label_node temp, new_label = NULL;/*for temporary and new labels nose*/
-    int i, len= strlen(label);
+    int i, len= strlen(label);/*for the length of label*/
     label[--len]= '\0'; /*removing the ':' and reducing len by 1*/
     if( len > MAX_LABEL_LENGTH ){/*cheks if the length of the label is over 31*/
         eror(eror_node ,LABEL_LENGTH);
@@ -56,13 +87,15 @@ static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,h
         return new_label;
     }
     new_label = (label_node)malloc(sizeof(struct Label));
-    if (new_label==NULL)/*memorey allocation fail*/
-    {
+    if (new_label==NULL)
+    {   /*memorey allocation fail*/
         fprintf(stderr,"Failed to allocate memory\n");
         exit(1);
     }
     strcpy(new_label->name,label);
-    (new_label->is_entry)=F;/*By default, later it will be checked if it was set as  entry.*/
+    new_label->adress = 0; /* Initialize address */
+    new_label->flag_type = RESRERVE; /* Initialize flag_type */
+    new_label->is_entry = F; /* Initialize is_entry */
     new_label->next = NULL;
     if ((head_label->head_of_list) == NULL )/*if its the first label*/
     {
@@ -70,14 +103,15 @@ static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,h
         return new_label;
     }
     temp = (label_node)(head_label->head_of_list);
-    while(temp){/*Going through the list of labels, if the new label name is already found, an error is reported.
-     If not, adds the new node to the end of the list*/
+    while(temp){ /* Go through the list of labels */
         if( strcmp( (temp->name) , label ) == 0 ){  
+            /* If the new label name is already found */
             eror(eror_node ,LABEL_NAME_AGAIN);
             free(new_label);
             return  NULL;
         }
         if (temp->next == NULL){
+             /* Add the new node to the end of the list */
             temp->next = new_label ;
             return new_label;
         }
@@ -85,38 +119,35 @@ static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,h
     }
     return NULL;
 }
-static void change_adress(head label_head,int ic)
-{   
-    label_node temp;
-    temp = label_head.head_of_list;
-    while(temp){
-        if((temp->flag_type) == DIRECTIVE)
-            temp->adress += (FIRST_MEM+ic);
-        else
-            temp->adress += FIRST_MEM;
-        temp = (temp->next);
-    }
-}
 
+/*
+This function performs the first pass of the assembly process.
+It reads the assembly file line by line, parses the labels and instructions, and stores them in appropriate data structures.
+It also checks for errors in labels and instructions.
+At the end, it verifies the validity of extern and entry directives and send to the second pass.
+Parameters:
+am_name - The name of the assembly file.
+head_node_mac - The head of the macro list.*/
 void first_pass(char *am_name,head *head_node_mac)
 {
     int size_en = START_SIZE,size_ex = START_SIZE ;/*Contains the size of the data structures assigned to .extern and .entry respectively*/
     char (*enters)[MAX_LINE_LENGTH],(*exters)[MAX_LINE_LENGTH];/*to contain the names of the externs and entry*/
     int *enters_line_num,*exters_line_num;/*evrey (exters/enters)_line_num[i] will be the line num of (exters/enters)[i]*/
-    head label_head;
-    command coms[MAX_SIZE_MEMOREY]={0};/*whill contain all the regular instraction words*/
-	short data[MAX_SIZE_MEMOREY]={0};/*whill contain all the data or string words*/
-	int eror_flag=T;
-    char line[MAX_LINE_LENGTH+NULL_SIZE],*rest_line;/* To store new line evry time*/
-    int ic=0,dc=0,ex_c=0,en_c=0;/*to count the num of instraction and data words and .extern or .entry respectively*/
+    head label_head;/*the head of labels list*/
+    command coms[MAX_SIZE_MEMOREY]={0};/* Array to store all the instruction words */
+	short data[MAX_SIZE_MEMOREY]={0};/* array to store all the data or string words */
+	int eror_flag=T;/*the flag to mark if eror occurred*/
+    char line[MAX_LINE_LENGTH+NULL_SIZE],*rest_line;/* buffers to store lines and remaining parts of lines */
+    int ic=0,dc=0,ex_c=0,en_c=0;/* counters for instructions, data words, .extern, and .entry respectively */
     int line_num =0;/*lines counter*/
     char label[MAX_LINE_LENGTH];/*to contain the label evry line*/
-    int temp;
-    FILE *am_file;
-    int command_type; /*will contain the opcode of the command or the enum value if its promote  */
-    char first_word[MAX_LINE_LENGTH]; /*to read the first word after the label*/
-    label_node new_label;
-    erors_node eror_node;
+    int temp;/*temporary int*/
+    FILE *am_file;/*source assembly file*/
+    int command_type;/* to store the opcode of the command or the enum value if it's a directive */
+    char first_word[MAX_LINE_LENGTH];  /*buffer to read the first word after the label */
+    label_node new_label;/*temporary node for label*/
+    erors_node eror_node;/*the node for the data needed to to handle eror*/
+    /*eror_node update*/
     eror_node.file_name= am_name;
     eror_node.flag = &eror_flag;
     eror_node.line_num = &line_num;
@@ -127,7 +158,7 @@ void first_pass(char *am_name,head *head_node_mac)
     enters_line_num = malloc(START_SIZE *  sizeof(int));
     exters_line_num = malloc(START_SIZE *  sizeof(int));
     if (enters == NULL || exters == NULL || enters_line_num == NULL || enters_line_num == NULL)  {
-        printf("\nFailed to allocate memory\n");
+        printf("\nFailed to allocate memory");/*memorey allocaton fails*/
         exit(1);
     }
     label_head.head_of_list =NULL;
@@ -143,12 +174,12 @@ void first_pass(char *am_name,head *head_node_mac)
         *label = '\0';/*reset the label*/
         *first_word = '\0';/*reset the string*/
         line_num++;
-        if (line[strlen(line) - NULL_SIZE ] != '\n' && !feof(am_file)){/*cheks if the size of the line is to big*/
+        if (line[strlen(line) - NULL_SIZE ] != '\n' && !feof(am_file)){/*cheks if the size of the line is to long*/
             eror(eror_node ,LINE_LENGTH);
             while (fgetc(am_file) != '\n' && !feof(am_file));/*Reach a new line*/
             } 
         
-        if( ! ( *line == ';' || chek_end_line(line) ) )/*cheks if it is not blank or note line*/
+        if( ! ( *line == ';' || chek_end_line(line) ) )/* Check if it is not a blank or comment line */
         {
             sscanf(line,"%s",label); 
             temp = strlen(label);
@@ -161,14 +192,14 @@ void first_pass(char *am_name,head *head_node_mac)
                 rest_line = strstr(line,label)+temp;/*now rest line is the part of the line after the label*/
             if (  sscanf(rest_line,"%s",first_word)==0 || (temp = strlen(first_word))==0 )  
             {
-             /*If we got here, it means that the line is not empty, but rest_line is empty, which means that only a label appeared*/
+             /* If the line is not empty but rest_line is empty, which means only a label appeared */
                 eror(eror_node , ONLY_LABEL );
             }
             command_type = search_command(first_word);
             if ( temp && (command_type == NOT_COMMAND))
                 eror(eror_node , NOT_VALID_COMMAND);
             if(*label != '\0')
-                new_label = valid_label(eror_node, label,head_node_mac,&label_head,am_file);
+                new_label = valid_label(eror_node, label,head_node_mac,&label_head);
             if(( (*label== '\0') || new_label ) )
             {
                 
@@ -177,15 +208,15 @@ void first_pass(char *am_name,head *head_node_mac)
                 if ( (ic+dc) > MAX_SIZE_MEMOREY )  /*cheking if we heave to many words*/
                 {
                     eror(eror_node,OVER_SIZE);
-                    /*And so that there is no deviation from the size of the arrays*/
+                    /* Prevent deviation from the size of the arrays */
                     ic=0;
                     dc=0;
                 } 
-                if (command_type >= MOV && command_type <= STOP){/*the That is, it belongs to the opcode of a command*/
-                coms[ic].type_of_instraction = FIRST;
-                coms[ic].line_number = line_num;
-                coms[ic].ins.first_command.a=T;
-                coms[ic].ins.first_command.opcode = (unsigned int)command_type;
+                if (command_type >= MOV && command_type <= STOP){ /*if it belongs to the opcode of a command */
+                    coms[ic].type_of_instraction = FIRST;
+                    coms[ic].line_number = line_num;
+                    coms[ic].ins.first_command.a=T;
+                    coms[ic].ins.first_command.opcode = (unsigned int)command_type;
                 }
                 switch (command_type)
                 {
@@ -257,18 +288,18 @@ void first_pass(char *am_name,head *head_node_mac)
         if ( (ic+dc) > MAX_SIZE_MEMOREY )  /*cheking if we heave to many words*/
         {
             eror(eror_node,OVER_SIZE);
-            /*And so that there is no deviation from the size of the arrays*/
+             /* Prevent deviation from the size of the arrays */
             ic=0;
             dc=0;
         } 
     }/*close the while*/
-    check_entey(eror_node,&enters,&enters_line_num,en_c,&label_head);
-    check_extern(eror_node,&exters,&exters_line_num,ex_c,&label_head);
-    change_adress(label_head,ic);
+    check_entey(eror_node,&enters,&enters_line_num,en_c,&label_head); /* Check validity of entry directives */
+    check_extern(eror_node,&exters,&exters_line_num,ex_c,&label_head); /* Check validity of extern directives */
     free(exters_line_num);
     free(enters_line_num);
     fclose(am_file);
-    second_pass(eror_node,&coms,ic,&data,dc,&exters,ex_c,&label_head,en_c);
+    second_pass(eror_node,&coms,ic,&data,dc,&exters,ex_c,&label_head,en_c);/*send to second pass*/
+    free_the_labels(label_head);
     free(exters);
     free(enters);
 }

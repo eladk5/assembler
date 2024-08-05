@@ -21,7 +21,8 @@ enum flags{
     SOURCE,/*soursce operand*/
     TARGET,/*target operand*/
     INCTRACTION,/*inctractin line*/
-    DIRECTIVE/*directive line*/
+    DIRECTIVE,/*directive line*/
+    RESRERVE/*for extra labels*/
 };
 
 /* Structure to hold command names and their allowed methods */
@@ -82,14 +83,14 @@ typedef struct Command command;
 /*struct for label node in list*/
 struct Label{
     char name[MAX_LABEL_LENGTH+ONE_CHAR];/*the label name*/
-    int flag_type; /*dirctive or inctraction*/
+    int flag_type; /*dirctive or inctraction (or reserve)*/
     int adress;/*the adress of tje label*/
     int is_entry;/*T if he was daclared as entry otherwize F*/
     struct Label *next;
 };
 typedef struct Label *label_node;
 
-#ifdef NOT_FIRST
+#ifdef HELP_FUNCS
 extern Cmd cmd[];/*An array in which each command is in its opcode (and at the end there are also the diractive)*/
 #endif
 
@@ -166,9 +167,31 @@ Returns:T if the operation is successful, F otherwise.
 */
 int ext_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic);
 #endif
-#ifdef STRING_TO_DATA /*for string_to_data_file*/
+#ifdef STRING_TO_DATA /*for string_to_data file*/
 #define DOUBLE 2 /*double size*/
 #define MIN_QUOTES 2 /*the minimum amount of qoutse in string */
+Cmd cmd[]={/*Each command here is placed in the place of its opcode in the array */
+        {"mov", { {T,T,T,T}, {F,T,T,T} } },
+        {"cmp", { {T,T,T,T}, {T,T,T,T} } },
+        {"add", { {T,T,T,T}, {F,T,T,T} } },
+        {"sub", { {T,T,T,T}, {F,T,T,T} } },
+        {"lea", { {F,T,F,F}, {F,T,T,T} } },
+        {"clr", { {F,F,F,F}, {F,T,T,T} } },
+        {"not", { {F,F,F,F}, {F,T,T,T} } },
+        {"inc", { {F,F,F,F}, {F,T,T,T} } },
+        {"dec", { {F,F,F,F}, {F,T,T,T} } },
+        {"jmp", { {F,F,F,F}, {F,T,T,F} } },
+        {"bne", { {F,F,F,F}, {F,T,T,F} } },
+        {"red", { {F,F,F,F}, {F,T,T,T} } },
+        {"prn", { {F,F,F,F}, {T,T,T,T} } },
+        {"jsr", { {F,F,F,F}, {F,T,T,F} } },
+        {"rts", { {F,F,F,F}, {F,F,F,F} } },
+        {"stop",{ {F,F,F,F}, {F,F,F,F} } },
+        {".entry",  {{F}, {F}}},
+        {".extern", {{F}, {F}}},
+        {".data",   {{F}, {F}}},
+        {".string", {{F}, {F}}}  
+   };
 /*
 This function verifies that a string of numbers separated by commas is correctly formatted 
 It ensures numbers are properly separated by commas and removes extra spaces if the string is valid.
@@ -198,5 +221,5 @@ str: the string to chek
 c: the char to look for
 retuens: the times that char c exixt in str*/
 int how_many_c(char *str, char c);
-#endif
+#endif/*string_to_data*/
 

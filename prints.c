@@ -32,20 +32,21 @@ Returns:T if the operation is successful, F otherwise.
 
 int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short (*data)[MAX_SIZE_MEMOREY] ,int dc )
 {
-    FILE *ob_file;
-    int memorey = FIRST_MEM;
+    FILE *ob_file;/* File pointer for the object file */
+    int memorey = FIRST_MEM;/* Memory address counter, starting from the first available memory location */
     int i;
-    short temp;
-    change_extension(file_name,"ob");
+    short temp;/* Temporary variable for storing the current instruction or data word */
+    change_extension(file_name,"ob"); /* Change the file extension to .ob */
     if ((ob_file=fopen(file_name,"w")) == NULL){
  		fprintf(stderr, "Error opening file: %s\n",file_name);/* the file dont open */
         return F;
 		}
-    fprintf(ob_file, " %d %d\n",ic,dc);
+    fprintf(ob_file, " %d %d\n",ic,dc);/* Print the instruction and data counters */
+    /* Print the instruction words */
     for(i=0; i<ic ; i++ ,memorey++){
         temp =0;
         switch ((*coms)[i].type_of_instraction)
-        {
+        {/*Updates temp according to the word type and the bits that need to be changed*/
         case FIRST:
             printf("first command in line:%d a:%d source: %d",(*coms)[i].line_number,(*coms)[i].ins.first_command.a,(*coms)[i].ins.first_command.source_method);
             printf("target:%d opc:%d\n",(*coms)[i].ins.first_command.target_method,(*coms)[i].ins.first_command.opcode);
@@ -79,14 +80,15 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
         print_short_binary((unsigned short)temp & FULL_BIT_INSTRACTION);
         fprintf(ob_file,"%05d %05o\n",memorey, (unsigned short)temp & FULL_BIT_INSTRACTION);
     }
+     /* Print the data words */
     for(i=0; i < dc ; i++ ,memorey++)
     {
         printf("data adress:%d data:%d \n",memorey, (*data)[i]);
         print_short_binary((unsigned short)(*data)[i] & FULL_BIT_INSTRACTION);
         fprintf(ob_file,"%05d %05o\n",memorey,(unsigned short)(*data)[i] & FULL_BIT_INSTRACTION);
     }
-    return T;
     fclose(ob_file);
+    return T;
 }
 /*
 The function writes the entry labels and their addresses to a file with ent extension.
@@ -95,16 +97,13 @@ Parameters:
 file_name: The name of the origin file.
 labels: The head of the label list.
 Returns:T if the operation is successful, F otherwise.
+Assumption: The function is activated only if there are labels defined as entrys
 */
 int ent_print(char *file_name, head labels )
 {
-    label_node temp;
-    FILE *ent_file;
-    if (labels.head_of_list == NULL)
-    {
-        return T;/*there is no labels*/
-    }
-    change_extension(file_name,"ent");
+    label_node temp;/* Temporary variable for label node */
+    FILE *ent_file;/* File pointer for the entry file */
+    change_extension(file_name,"ent");/* Change the file extension to .ent */
     if ((ent_file=fopen(file_name,"w")) == NULL){
  		fprintf(stderr, "Error opening file: %s\n",file_name);/* the file dont open */
         return F;
@@ -113,7 +112,7 @@ int ent_print(char *file_name, head labels )
     while(temp)
     {
         if (temp->is_entry)
-            fprintf(ent_file,"%s %d\n",temp->name, temp->adress);
+            fprintf(ent_file,"%s %d\n",temp->name, temp->adress);/* Print the entry label and its address */
         temp = (temp->next);  
     }
     fclose(ent_file);
@@ -127,18 +126,19 @@ file_name: The name of the origin file.
 coms: The array of commands.
 ic: The instruction counter.
 Returns:T if the operation is successful, F otherwise.
+Assumption: The function is activated only if there are labels defined as extern
 */
 int ext_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic)
 {
-    FILE *ext_file;
+    FILE *ext_file;/* File pointer for the external file */
     int i;
-    change_extension(file_name,"ext");
+    change_extension(file_name,"ext");/* Change the file extension to .ext */
     if ((ext_file=fopen(file_name,"w")) == NULL){
- 		fprintf(stderr, "Error opening file: %s\n",file_name);/* the file dont open */
+ 		fprintf(stderr, "Error opening file: %s\n",file_name);/* The file didn't open */
         return F;
 		}
     for(i=0; i<ic ; i++ )
-    {
+    { /* Iterate through the commands and print external labels */
         if ((*coms)[i].type_of_instraction == LABEL )
         {
             if((*coms)[i].ins.label_word.e)/*its an external label*/
