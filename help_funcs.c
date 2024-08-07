@@ -27,8 +27,8 @@ Note: This function treats any character that is not white or a comma as a numbe
 Parameters:
 str: A pointer to the input string containing numbers separated by commas.
 Return Values:
-COMMA (19): Misplaced or consecutive commas without numbers in between.
-MISS_COMMA (21): Missing comma between numbers.
+COMMA (18): Misplaced or consecutive commas without numbers in between.
+MISS_COMMA (20): Missing comma between numbers.
 T (1): The string is valid and properly formatted.*/
 int check_numbers_saperate(char *str){
     char *temp=str;
@@ -218,4 +218,22 @@ int how_many_c(char *str, char c)
         temp++;
     }
     return count;
+}
+
+/*
+This function checks if the given string is a register name.
+It compares the input string to an array of register names.
+parameters:
+str - The string to check.
+Return: the num of the register if found, otherwise NOT_COMMAND(-1).
+*/
+int is_reg(char *str)
+{
+    char regs[][SIZE_NAME_REG] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"}; /* Array of register names by order*/
+    int i;
+    for(i=0;i<NUM_OF_REGS;i++){
+        if(strcmp(str,regs[i])==0)
+            return i;/* Return the num of the register if a match is found */
+    }
+    return NOT_COMMAND;
 }

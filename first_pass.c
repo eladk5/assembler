@@ -86,6 +86,12 @@ static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,h
         eror(eror_node ,LABEL_IS_MACRO);
         return new_label;
     }
+    if (is_reg(label)!= NOT_COMMAND)
+    {
+        eror(eror_node ,LABEL_IS_REG);
+        return new_label;
+    }
+    
     new_label = (label_node)malloc(sizeof(struct Label));
     if (new_label==NULL)
     {   /*memorey allocation fail*/

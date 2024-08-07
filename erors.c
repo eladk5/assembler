@@ -76,12 +76,17 @@ void eror(erors_node eror_node,int eror_num){
     case NO_VALID_METHOD:
         printf("A command was sent with an operand that does not match the command type\n");
         break;
-    default:
-        break;
     case NUM_REP: 
         printf("The number you entered is too large or too small, and is not suitable for representation in the appropriate number of bits\n");
         break;
-    
+    case LABEL_IS_REG:
+        printf("A label name must not be the name of a register\n");
+        break;
+    case MAC_NAME_REG:
+        printf("A macro name must not be the name of a register\n");
+        break;
+    default:
+        break;    
     }
     printf("-------------------------------------------------------\n");
 }

@@ -68,7 +68,9 @@ enum erors{
         NUM_REP,/*The number cannot be represented in the appropriate number of bits*/
         ENTRY_NOT_EXIXT,/* an .entry whith undeclared label in file */
         EXTERN_IS_LABEL,/*an .exten whith allredy declared label in file*/
-        FAIL_LABEL /*an argument that does not fit any addressing method and was not declared as a label in any form in the file*/
+        FAIL_LABEL, /*an argument that does not fit any addressing method and was not declared as a label in any form in the file*/
+        LABEL_IS_REG, /*the label is name of register*/
+        MAC_NAME_REG /*the name of the macro is name of register*/
 };
 
 /*Handles various cases of errors by printing the appropriate error, as well as changing the flag.
@@ -113,6 +115,14 @@ Parameters:
 file_name: the name to change
 new_ext: the new extension.*/
 void change_extension(char *file_name, const char *new_ext);
+
+/*
+This function checks if the given string is a register name.
+parameters:
+str - The string to check.
+Return: the num of the register if found, otherwise NOT_COMMAND(-1).
+*/
+int is_reg(char *str);
 
 #ifdef PRE_PROSES/*only for the pre_proses file*/
 

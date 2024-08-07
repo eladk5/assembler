@@ -48,7 +48,7 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
         switch ((*coms)[i].type_of_instraction)
         {/*Updates temp according to the word type and the bits that need to be changed*/
         case FIRST:
-            printf("first command in line:%d a:%d source: %d",(*coms)[i].line_number,(*coms)[i].ins.first_command.a,(*coms)[i].ins.first_command.source_method);
+            printf("%d: first command in line:%d a:%d source: %d",memorey,(*coms)[i].line_number,(*coms)[i].ins.first_command.a,(*coms)[i].ins.first_command.source_method);
             printf("target:%d opc:%d\n",(*coms)[i].ins.first_command.target_method,(*coms)[i].ins.first_command.opcode);
             temp |=  (*coms)[i].ins.first_command.a << TWO_BITS;
             temp |=  (*coms)[i].ins.first_command.target_method << THREE_BITS;
@@ -56,19 +56,19 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
             temp |=  (*coms)[i].ins.first_command.opcode << ELEVEN_BITS;
             break;
         case NUMBER:
-            printf("num command in line:%d a:%d value: %d\n",(*coms)[i].line_number,(*coms)[i].ins.number_word.a,(*coms)[i].ins.number_word.value);
+            printf("%d: num command in line:%d a:%d value: %d\n",memorey,(*coms)[i].line_number,(*coms)[i].ins.number_word.a,(*coms)[i].ins.number_word.value);
             temp |=  (*coms)[i].ins.number_word.a << TWO_BITS;
             temp |=  (*coms)[i].ins.number_word.value << THREE_BITS;
             break;
         case LABEL:
-            printf("label in line:%d e:%d r: %d adress: %d\n",(*coms)[i].line_number,(*coms)[i].ins.label_word.e,(*coms)[i].ins.label_word.r,(*coms)[i].ins.label_word.adress);
+            printf("%d: label in line:%d e:%d r: %d adress: %d\n",memorey,(*coms)[i].line_number,(*coms)[i].ins.label_word.e,(*coms)[i].ins.label_word.r,(*coms)[i].ins.label_word.adress);
             temp |=  (*coms)[i].ins.label_word.e;
             temp |=  (*coms)[i].ins.label_word.r << ONE_BIT;
             temp |=  (*coms)[i].ins.label_word.adress << THREE_BITS;
             break;
         case P_REGISTER:
         case D_REGISTER:
-            printf("register in line:%d a:%d source:%d ",(*coms)[i].line_number,(*coms)[i].ins.register_word.a,(*coms)[i].ins.register_word.source_operand);
+            printf("%d: register in line:%d a:%d source:%d ",memorey,(*coms)[i].line_number,(*coms)[i].ins.register_word.a,(*coms)[i].ins.register_word.source_operand);
             printf("target:%d\n",(*coms)[i].ins.register_word.target_operand);
             temp |=  (*coms)[i].ins.register_word.a << TWO_BITS;
             temp |=  (*coms)[i].ins.register_word.target_operand << THREE_BITS;
@@ -142,7 +142,7 @@ int ext_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic)
         if ((*coms)[i].type_of_instraction == LABEL )
         {
             if((*coms)[i].ins.label_word.e)/*its an external label*/
-                fprintf(ext_file,"%s %d\n",(*coms)[i].label_name,i+FIRST_MEM);
+                fprintf(ext_file,"%s %04d\n",(*coms)[i].label_name,i+FIRST_MEM);
         }
     }
     fclose(ext_file);

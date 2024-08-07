@@ -46,6 +46,11 @@ static void read_macr(FILE *as_file, char *name, head *head_node,erors_node eror
          eror(eror_node,MAC_NAME_COMMAND);
          return;
     }
+    if ( is_reg(name) != NOT_COMMAND )/*Cheks if it is a register name*/
+    {
+         eror(eror_node,MAC_NAME_REG);
+         return;
+    }
     new_node = (macro_node)malloc(sizeof(struct MacroNode));
     if (new_node == NULL) {
         fprintf(stderr,"Failed to allocate memory\n");/*memory alucation fail */

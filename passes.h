@@ -1,7 +1,6 @@
 #define FIRST_MEM 100/*the first usable place in memorey*/
 #define START_SIZE 50 /*the first size of dinamic arrey*/
 #define ONE_CHAR 1 /*size of one character*/
-#define CHAR_TO_NAM(A) ( (A)-'0' ) /*convert one digit char to number*/
 #define IS_WITHIN_12_BITS(num) ((num) >= -2048 && (num) <= 2047)/* if num fits in 12 bits */
 #define IS_WITHIN_15_BITS(num) ((num) >= -16384 && (num) <= 16383)/* if num fits in 15 bits */
 #define METHOD(A) ( 1 << A )
@@ -91,6 +90,8 @@ struct Label{
 typedef struct Label *label_node;
 
 #ifdef HELP_FUNCS
+#define NUM_OF_REGS 8/*the number of registers*/
+#define SIZE_NAME_REG 3 /*the length of register name*/
 extern Cmd cmd[];/*An array in which each command is in its opcode (and at the end there are also the diractive)*/
 #endif
 

@@ -20,7 +20,7 @@ static int read_operand(erors_node eror_node, char *first_word,instruction *oper
 {
     char *temp = first_word; /* Temporary pointer to traverse the operand string */
     int type = LABEL;   /* Initialize the default type to LABEL */
-    int num;/*if number method to store the number that recived*/
+    int num;/*to store the number that recived in number or register method*/
     if (*temp == '#'){ /* Check if the operand is a number */
         type = NUMBER;
         temp++;
@@ -41,13 +41,12 @@ static int read_operand(erors_node eror_node, char *first_word,instruction *oper
     if(*temp == 'r'){ /* Check if the operand is a register */
         if( type != P_REGISTER )
             type = D_REGISTER;/*if it isn't pointer to register set as direct one*/
-        temp++;
-        if ( (strlen(temp)== ONE_CHAR) && ( ('0' <=(*temp)) &&( (*temp) <= 'g') ) ){ /* after 'r' apeers one char that it register number*/
+        if((num =is_reg(temp)) != NOT_COMMAND){/*chek if its name of register*/
             (operand->number_word).a=T;
             if(which_operand == TARGET)
-                (operand->register_word).target_operand = CHAR_TO_NAM(*temp);
+                (operand->register_word).target_operand = num;
             else 
-                (operand->register_word).source_operand = CHAR_TO_NAM(*temp);
+                (operand->register_word).source_operand = num;
             return type;
         }
     } 
