@@ -40,5 +40,5 @@ string_to_data.o: string_to_data.c all.h passes.h
 	$(CC) $(CFLAGS) -c string_to_data.c -o string_to_data.o
 
 clean:
-	rm -f $(OBJ)
+	rm -f $(OBJ) $(TARGET)
 

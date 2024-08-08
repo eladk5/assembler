@@ -231,13 +231,11 @@ void add_data(erors_node eror_node,char *rest,int *dc,short (*data)[])
         num = get_num(eror_node,cp);
         if (IS_WITHIN_15_BITS(num)){
             (*data)[(*dc)++] = num;/* Add number to data array and increment dc */
-            cp = strtok(NULL,comma);
         }
         else{/*The number cannot be represented in 15 bits*/
             eror(eror_node,NUM_REP);
         }
-        
-        
+        cp = strtok(NULL,comma);
     }
 }
 

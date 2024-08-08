@@ -1,5 +1,5 @@
 #define FIRST_MEM 100/*the first usable place in memorey*/
-#define START_SIZE 50 /*the first size of dinamic arrey*/
+#define START_SIZE 50 /*the first size of dinamic arrey*/ 
 #define ONE_CHAR 1 /*size of one character*/
 #define IS_WITHIN_12_BITS(num) ((num) >= -2048 && (num) <= 2047)/* if num fits in 12 bits */
 #define IS_WITHIN_15_BITS(num) ((num) >= -16384 && (num) <= 16383)/* if num fits in 15 bits */

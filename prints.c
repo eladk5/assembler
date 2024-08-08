@@ -2,21 +2,6 @@
 #define PRINT
 #include "passes.h"
 
-void print_short_binary(short number) {
-    int bits = sizeof(short) * 8; 
-    int i;
-    unsigned short mask = 1 << (bits - 1);
-
-    for ( i = 0; i < bits; i++) {
-        if (number & mask) {
-            printf("1");
-        } else {
-            printf("0");
-        }
-        mask >>= 1;
-    }
-    printf("\n");
-}
 /*
 The function generates the object file from the commands and data sections with ob extension.
 The object code is printed to file in octal format along with its memory address.
@@ -48,28 +33,22 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
         switch ((*coms)[i].type_of_instraction)
         {/*Updates temp according to the word type and the bits that need to be changed*/
         case FIRST:
-            printf("%d: first command in line:%d a:%d source: %d",memorey,(*coms)[i].line_number,(*coms)[i].ins.first_command.a,(*coms)[i].ins.first_command.source_method);
-            printf("target:%d opc:%d\n",(*coms)[i].ins.first_command.target_method,(*coms)[i].ins.first_command.opcode);
             temp |=  (*coms)[i].ins.first_command.a << TWO_BITS;
             temp |=  (*coms)[i].ins.first_command.target_method << THREE_BITS;
             temp |=  (*coms)[i].ins.first_command.source_method << SEVEN_BITS;
             temp |=  (*coms)[i].ins.first_command.opcode << ELEVEN_BITS;
             break;
         case NUMBER:
-            printf("%d: num command in line:%d a:%d value: %d\n",memorey,(*coms)[i].line_number,(*coms)[i].ins.number_word.a,(*coms)[i].ins.number_word.value);
             temp |=  (*coms)[i].ins.number_word.a << TWO_BITS;
             temp |=  (*coms)[i].ins.number_word.value << THREE_BITS;
             break;
         case LABEL:
-            printf("%d: label in line:%d e:%d r: %d adress: %d\n",memorey,(*coms)[i].line_number,(*coms)[i].ins.label_word.e,(*coms)[i].ins.label_word.r,(*coms)[i].ins.label_word.adress);
             temp |=  (*coms)[i].ins.label_word.e;
             temp |=  (*coms)[i].ins.label_word.r << ONE_BIT;
             temp |=  (*coms)[i].ins.label_word.adress << THREE_BITS;
             break;
         case P_REGISTER:
         case D_REGISTER:
-            printf("%d: register in line:%d a:%d source:%d ",memorey,(*coms)[i].line_number,(*coms)[i].ins.register_word.a,(*coms)[i].ins.register_word.source_operand);
-            printf("target:%d\n",(*coms)[i].ins.register_word.target_operand);
             temp |=  (*coms)[i].ins.register_word.a << TWO_BITS;
             temp |=  (*coms)[i].ins.register_word.target_operand << THREE_BITS;
             temp |=  (*coms)[i].ins.register_word.source_operand << SIX_BITS;
@@ -77,15 +56,12 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
         default:
             break;
         }
-        print_short_binary((unsigned short)temp & FULL_BIT_INSTRACTION);
-        fprintf(ob_file,"%05d %05o\n",memorey, (unsigned short)temp & FULL_BIT_INSTRACTION);
+        fprintf(ob_file,"%04d %05o\n",memorey, (unsigned short)temp & FULL_BIT_INSTRACTION);
     }
      /* Print the data words */
     for(i=0; i < dc ; i++ ,memorey++)
     {
-        printf("data adress:%d data:%d \n",memorey, (*data)[i]);
-        print_short_binary((unsigned short)(*data)[i] & FULL_BIT_INSTRACTION);
-        fprintf(ob_file,"%05d %05o\n",memorey,(unsigned short)(*data)[i] & FULL_BIT_INSTRACTION);
+        fprintf(ob_file,"%04d %05o\n",memorey,(unsigned short)(*data)[i] & FULL_BIT_INSTRACTION);
     }
     fclose(ob_file);
     return T;
@@ -112,7 +88,7 @@ int ent_print(char *file_name, head labels )
     while(temp)
     {
         if (temp->is_entry)
-            fprintf(ent_file,"%s %d\n",temp->name, temp->adress);/* Print the entry label and its address */
+            fprintf(ent_file,"%s %04d\n",temp->name, temp->adress);/* Print the entry label and its address */
         temp = (temp->next);  
     }
     fclose(ent_file);

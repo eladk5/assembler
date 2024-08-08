@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> 
 #include <string.h>
 #define MAX_SIZE_ENDINDG 5 /*The largest size a file extension can be*/
 

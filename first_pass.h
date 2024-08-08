@@ -1,4 +1,4 @@
-
+ 
    /* This function processes a line of assembly code with a single operand, reads the operand, verifies its method,
     and updates the instruction structure. It checks for errors such as missing or invalid operands, ensures the memory
     is not full, and verifies there are no extra characters at the end of the line.
