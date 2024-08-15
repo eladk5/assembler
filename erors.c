@@ -7,7 +7,7 @@ eror_num: the type of the eror from the enum erors
 */
 void eror(erors_node eror_node,int eror_num){
     *eror_node.flag = F;
-    printf("\neror: in file: %s,line number %d\nin the line:%s\n",eror_node.file_name,*eror_node.line_num,eror_node.line);
+    printf("\neror: in file: %s,line number %d\nin the line: %s\n",eror_node.file_name,*eror_node.line_num,eror_node.line);
     switch (eror_num)
     {
     case LINE_LENGTH:

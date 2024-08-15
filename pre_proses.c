@@ -1,4 +1,5 @@
 #define PRE_PROSES
+#define MACRO
 #include "all.h"
 
 
@@ -41,7 +42,7 @@ static void read_macr(FILE *as_file, char *name, head *head_node,erors_node eror
         eror(eror_node, MAC_START);
         return;
     }
-    if ( search_command(name) != NOT_COMMAND )/*Cheks if it is a command name*/
+    if ( search_command(name) != NOT_COMMAND ||strcmp(name,"macr")==0 ||strcmp(name,"endmacr")==0 )/*Cheks if it is a command name*/
     {
          eror(eror_node,MAC_NAME_COMMAND);
          return;

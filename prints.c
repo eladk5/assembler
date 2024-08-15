@@ -26,7 +26,7 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
  		fprintf(stderr, "Error opening file: %s\n",file_name);/* the file dont open */
         return F;
 		}
-    fprintf(ob_file, " %d %d\n",ic,dc);/* Print the instruction and data counters */
+    fprintf(ob_file, "  %d %d\n",ic,dc);/* Print the instruction and data counters */
     /* Print the instruction words */
     for(i=0; i<ic ; i++ ,memorey++){
         temp =0;
@@ -88,7 +88,7 @@ int ent_print(char *file_name, head labels )
     while(temp)
     {
         if (temp->is_entry)
-            fprintf(ent_file,"%s %04d\n",temp->name, temp->adress);/* Print the entry label and its address */
+            fprintf(ent_file,"%s\t%04d\n",temp->name, temp->adress);/* Print the entry label and its address */
         temp = (temp->next);  
     }
     fclose(ent_file);
@@ -118,7 +118,7 @@ int ext_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic)
         if ((*coms)[i].type_of_instraction == LABEL )
         {
             if((*coms)[i].ins.label_word.e)/*its an external label*/
-                fprintf(ext_file,"%s %04d\n",(*coms)[i].label_name,i+FIRST_MEM);
+                fprintf(ext_file,"%s\t%04d\n",(*coms)[i].label_name,i+FIRST_MEM);
         }
     }
     fclose(ext_file);

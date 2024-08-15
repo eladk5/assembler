@@ -1,3 +1,4 @@
+#define MACRO
 #include "all.h"
 #define HELP_FUNCS
 #include "passes.h"

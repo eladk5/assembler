@@ -25,15 +25,6 @@ struct ErorNode{
 } ;
 typedef struct ErorNode erors_node;
 
-/* Structure to represent a macro node in the linked list */
-struct MacroNode {
-    char name[MAX_LABEL_LENGTH]; /* Name of the macro */
-    int offset; /* offset of the macro definition in the file (from the beginning of the file) */
-    int line_number; /* Line number where the macro is defined */
-    struct MacroNode *next;
-};
-typedef struct MacroNode *macro_node;
-
 /* Structure to represent the head of generic linked list */
 struct Generic_head{
     void *head_of_list;
@@ -97,19 +88,6 @@ Returns: T if the string contains only white characters, otherwise F.
 */
 int chek_end_line(char * str);
 
-/* 
-Frees the memory allocated for the macros in the head_node.
-Parameters:
-head_node: The head of the macro linked list.
-*/
-void free_the_mac(head head_node);
-
-/*cheks if str is name of macro
-Parameters:
-str: the string to chek
-head_node: The head of the macro linked list.*/
-macro_node is_macro_name(char *str,head head_node);
-
 /*change the part of filename after the dot to new_ext
 Parameters:
 file_name: the name to change
@@ -124,7 +102,29 @@ Return: the num of the register if found, otherwise NOT_COMMAND(-1).
 */
 int is_reg(char *str);
 
+#ifdef MACRO
+/* Structure to represent a macro node in the linked list */
+struct MacroNode {
+    char name[MAX_LABEL_LENGTH]; /* Name of the macro */
+    int offset; /* offset of the macro definition in the file (from the beginning of the file) */
+    int line_number; /* Line number where the macro is defined */
+    struct MacroNode *next;
+};
+typedef struct MacroNode *macro_node;
+/*cheks if str is name of macro
+Parameters:
+str: the string to chek
+head_node: The head of the macro linked list.*/
+macro_node is_macro_name(char *str,head head_node);
+#endif
+
 #ifdef PRE_PROSES/*only for the pre_proses file*/
+/* 
+Frees the memory allocated for the macros in the head_node.
+Parameters:
+head_node: The head of the macro linked list.
+*/
+void free_the_mac(head head_node);
 
 /*
  This function processes the assembly file to collect information about labels, instructions,
@@ -134,6 +134,7 @@ int is_reg(char *str);
  am_name: The name of the assembly file.
  head_node_mac: The head of the macro list.
  */
+
 void first_pass(char *am_name,head *head_node_mac);
 
 #endif /*end of PRE_PROSES */

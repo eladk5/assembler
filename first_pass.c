@@ -1,3 +1,4 @@
+#define MACRO
 #include "all.h"
 #include "passes.h"
 #include "first_pass.h"
@@ -76,7 +77,7 @@ static label_node valid_label(erors_node eror_node ,char *label,head *head_mac,h
             return new_label;
         }   
     }
-    if(search_command(label) != NOT_COMMAND)/*cheks if it is a command name*/
+    if(search_command(label) != NOT_COMMAND||strcmp(label,"macr")==0 ||strcmp(label,"endmacr")==0 )/*cheks if it is a command name*/
     {
         eror(eror_node ,LABEL_IS_COMMAND);
         return new_label;
