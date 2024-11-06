@@ -1,0 +1,60 @@
+
+eror: in file: tests/fail_macro.as,line number 1
+in the line: macr macr 
+
+the name of the macro is illegal because it name of command
+-------------------------------------------------------
+
+eror: in file: tests/fail_macro.as,line number 4
+in the line: macr endmacr
+
+the name of the macro is illegal because it name of command
+-------------------------------------------------------
+
+eror: in file: tests/fail_macro.as,line number 7
+in the line: macr r1
+
+A macro name must not be the name of a register
+-------------------------------------------------------
+
+eror: in file: tests/fail_macro.as,line number 11
+in the line: macr this_macro_name_is_too_long_to_be_valid
+
+The name of the macro is to long, it must not be more than 31 characters
+-------------------------------------------------------
+
+eror: in file: tests/fail_macro.as,line number 16
+in the line: macr 
+
+There is a macro declaration without a macro name
+-------------------------------------------------------
+
+eror: in file: tests/fail_macro.as,line number 23
+in the line: macr add
+
+the name of the macro is illegal because it name of command
+-------------------------------------------------------
+
+eror: in file: tests/fail_macro.as,line number 28
+in the line: macr m_macr extra_characters
+
+There are extra characters at the end of the line. Maybe you inserted extra operands?
+-------------------------------------------------------
+
+eror: in file: tests/fail_macro.as,line number 36
+in the line: endmacr extra_characters2
+
+There are extra characters at the end of the line. Maybe you inserted extra operands?
+-------------------------------------------------------
+
+eror: in file: tests/fail_macro.as,line number 44
+in the line: macr r_name 
+
+the name of the macro is taken by other macro
+-------------------------------------------------------
+
+eror: in file: tests/fail_macro.as,line number 49
+in the line: macr _name 
+
+Valid macro name must begin with alphabetic char
+-------------------------------------------------------

@@ -1,0 +1,227 @@
+
+eror: in file: tests/fails.am,line number 1
+in the line: macr: jsr
+
+A label name must not be the name of a command
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 2
+in the line: endmacr: jsr
+
+A label name must not be the name of a command
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 3
+in the line: JSR
+
+This line does not have a valid command or prompt
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 4
+in the line: G:
+
+In this line only a label appears, after a label there must come a prompt or instruction line
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 5
+in the line: r2: add r2,r2
+
+A label name must not be the name of a register
+-------------------------------------------------------
+
+warning: in file: tests/fails.am,line number 7
+in the line:EXTRA: .extern STOP
+Declaring a label on .extern or .entry lines is unnecessary.
+
+
+eror: in file: tests/fails.am,line number 8
+in the line: STOP: jsr 
+
+the name of the label is taken by other label
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 9
+in the line: ac: jsr
+
+A label name must not be the name of a macro
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 12
+in the line: 1qadx:  s  
+
+This line does not have a valid command or prompt
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 12
+in the line: 1qadx:  s  
+
+Valid label must begin with alphabetic char
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 13
+in the line: mov #5, #5
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 14
+in the line: cmp #5, 
+
+promote or instraction was declared without the right amuont of parameters
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 15
+in the line: qwertyuiqqwertywuytrewertywuytrw: stop
+
+The label defined in this line contains more than 31 characters and is therefore too long
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 16
+in the line: add #99999999999999999, #5
+
+The number you entered is too large or too small, and is not suitable for representation in the appropriate number of bits
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 16
+in the line: add #99999999999999999, #5
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 17
+in the line: add #5, #5
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 18
+in the line:     sub #5, #5 
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 19
+in the line: add: jsr 
+
+A label name must not be the name of a command
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 20
+in the line: S_TR: .string "1"
+
+Valid label must have only alphabetic or numbers chars
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 21
+in the line: a: lea #5, #2
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 22
+in the line: lea r1, r1
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 23
+in the line: lea *r1, r1
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 24
+in the line: clr #5
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 25
+in the line: not #5
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 26
+in the line: inc #5
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 27
+in the line: .data 1 2
+
+All two numbers must be separated by a comma
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 28
+in the line: .data 2,,3
+
+An invalid comma was found. Note that the line cannot start or end with a comma, and 2 commas in a row without a numerical value in between are not allowed.
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 29
+in the line: .data 1, 1a1
+
+Invalid value,No numeric value was received in the intended location 
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 30
+in the line: .data 1, 9999999
+
+The number you entered is too large or too small, and is not suitable for representation in the appropriate number of bits
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 31
+in the line: .string "32342fcs" , 
+
+Invalid string value, the entire string must be between " "
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 32
+in the line: dec #5
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 33
+in the line: jmp r1
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 34
+in the line: bne r1
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 35
+in the line: red #5
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 36
+in the line: jsr #5
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 37
+in the line: jsr r1
+
+A command was sent with an operand that does not match the command type
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 10
+In this line you declared a label as an entry but this label does not exist in the file.
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 7
+In this line you declared a label as an extern but this label also regular label in your file.
+-------------------------------------------------------
+
+eror: in file: tests/fails.am,line number 11
+In this line you declared the insertion of an argument that was not declared as an outer or normal label. and is not a valid number or register.
+-------------------------------------------------------
