@@ -4,7 +4,7 @@
 ## Project Overview
 This project is a two-pass assembler developed in C that translates assembly language code into machine code for a simplified, hypothetical CPU. It was developed as part of the Systems Programming Lab course, where it received a grade of 100. The assembler interprets and compiles assembly commands into octal (base 8) instructions, producing executable output files.
 
-For a detailed explanation of the project requirements and design, refer to the assembler project pdf file.
+For a detailed explanation of the project requirements and design, refer to the assembler project PDF file.
 
 ## Features
 1. **Two-Pass Structure**: The assembler completes code analysis in two passes:
