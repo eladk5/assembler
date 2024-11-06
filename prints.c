@@ -26,7 +26,7 @@ int ob_print(char *file_name, command (*coms)[MAX_SIZE_MEMOREY] , int ic, short 
  		fprintf(stderr, "Error opening file: %s\n",file_name);/* the file dont open */
         return F;
 		}
-    fprintf(ob_file, "  %d %d\n",ic,dc);/* Print the instruction and data counters */
+    fprintf(ob_file, "%4d %d\n",ic,dc);/* Print the instruction and data counters */
     /* Print the instruction words */
     for(i=0; i<ic ; i++ ,memorey++){
         temp =0;
