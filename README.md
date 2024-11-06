@@ -61,5 +61,14 @@ will generate the output files `example.ob`, `example.ext`, and `example.ent`, b
 - **Header Files**:
   - `assembler.h`, `first_pass.h`, `passes.h`: Define shared data structures and functions used across the assembler's modules.
 
-## Testing and Debugging
-The assembler was rigorously tested with various assembly programs to ensure correct output for both valid and error-prone input files. Custom test cases were created to verify each functionality, ensuring robust performance and reliable error handling.
+## Test Files
+
+The `tests` directory contains a variety of test files to verify the functionality of the assembler. These files include:
+
+- **good.as / good.am**: Valid assembly files that should compile successfully without errors, producing the corresponding `.ob`, `.ext`, and `.ent` output files.
+- **official.as / official.am**: Official test cases to validate the assembler’s correctness according to the project requirements.
+- **fail_macro.as**: A test file designed to test the assembler’s handling of macros, including intentional errors to check error reporting.
+- **full_memorey.as**: Tests how the assembler handles cases where memory is fully utilized or near capacity.
+- **fails.as**: A test file that includes syntax errors and incorrect instructions to ensure the assembler’s error handling capabilities.
+
+Each test file has associated output files (e.g., `.output`, `.ent`, `.ext`, `.ob`) that show expected results or error messages.
